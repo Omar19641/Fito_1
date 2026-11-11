@@ -1,523 +1,61 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-  <meta name="theme-color" content="#030712">
-  <title>The 13th Hour — Sector 13</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <style>
-    *{box-sizing:border-box}
-    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#030712;color:#cffafe;font-family:"Share Tech Mono",monospace;user-select:none;-webkit-user-select:none;touch-action:none}
-    button{font:inherit;cursor:pointer;touch-action:manipulation}
-    #game,#game canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
-    #hud{position:absolute;inset:0;z-index:2;display:none;pointer-events:none;padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));flex-direction:column;justify-content:space-between}
-    .row{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
-    .panel{background:#020617dc;border:1px solid #155e75aa;border-radius:11px;padding:9px 12px;box-shadow:0 6px 22px #0007}
-    .muted{font-size:12px;color:#94a3b8}
-    #objective{font-size:13px;color:#34d399;margin-top:3px}
-    #banner{align-self:center;display:none;background:#450a0add;border:1px solid #ef4444;border-radius:8px;padding:9px 14px;text-align:center;max-width:90vw}
-    #start{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;overflow:auto;padding:14px;background:radial-gradient(ellipse at 50% 20%,#082f49,#020617 70%)}
-    .card{width:min(700px,100%);max-height:100%;overflow:auto;background:#0f172aef;border:1px solid #0891b2aa;border-radius:18px;padding:clamp(17px,4vw,32px);text-align:center;box-shadow:0 24px 80px #0009}
-    h1{font-size:clamp(30px,7vw,52px);letter-spacing:.08em;color:#22d3ee;margin:0 0 4px}
-    .subtitle{color:#34d399;margin:0 0 14px}
-    .intro{background:#020617aa;border:1px solid #1e293b;border-radius:11px;padding:13px;text-align:start;line-height:1.55;color:#cbd5e1;margin:12px 0}
-    .label{font-size:12px;color:#94a3b8}
-    .choices{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:8px 0 13px}
-    .choice{border:1px solid #334155;background:#020617;border-radius:9px;padding:10px 13px;min-height:42px;color:#cffafe}
-    .choice.selected{border-color:#22d3ee;color:#22d3ee;box-shadow:0 0 14px #06b6d433}
-    .primary{background:#06b6d4;color:#020617;border:0;border-radius:10px;padding:13px 22px;font-weight:bold;font-size:17px;margin-top:10px}
-    .primary:hover{background:#67e8f9}
-    .note{font-size:12px;color:#94a3b8;line-height:1.5;margin:10px auto 0;max-width:580px}
-    #mobile{position:absolute;inset:0;z-index:3;display:none;pointer-events:none}
-    #stick{position:absolute;left:14px;bottom:max(18px,env(safe-area-inset-bottom));width:142px;height:142px;pointer-events:auto;touch-action:none}
-    #stickBase,#stickKnob{position:absolute;border-radius:50%;border:2px solid #67e8f966}
-    #stickBase{inset:0;background:#0e749066}
-    #stickKnob{width:58px;height:58px;left:40px;top:40px;background:#22d3ee99}
-    #actions{position:absolute;right:13px;bottom:max(17px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;pointer-events:auto}
-    .action{width:57px;height:57px;border-radius:50%;border:1px solid #67e8f9;background:#082f49e8;color:#ecfeff;font-size:11px;font-weight:bold}
-    .action.main{background:#06b6d4;color:#020617}
-    #lookHint{position:absolute;right:81px;bottom:30px;font-size:10px;color:#bae6fd88}
-    #dialog{position:absolute;inset:0;z-index:4;display:none;align-items:center;justify-content:center;padding:18px;background:#020617cc}
-    .dialogBox{width:min(420px,100%);background:#0f172a;border:1px solid #22d3ee;border-radius:14px;padding:21px;text-align:center}
-    .dialogBox h2{color:#22d3ee;margin:0 0 12px}
-    .rtl{direction:rtl}
-    .rtl .row{direction:rtl}
-    .rtl .intro{text-align:right}
-    @media(max-height:520px){#stick{width:105px;height:105px}#stickKnob{width:48px;height:48px;left:27px;top:27px}.action{width:47px;height:47px}}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#030712">
+<meta name="description" content="The 13th Hour: Sector 13 — accessible stealth game demo.">
+<title>The 13th Hour — Sector 13</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root{color-scheme:dark;--cyan:#22d3ee;--green:#34d399}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#030712;color:#cffafe;font-family:'Share Tech Mono',monospace;user-select:none;-webkit-user-select:none;touch-action:none}button{font:inherit;cursor:pointer;touch-action:manipulation;color:inherit}#game,#game canvas{position:absolute;inset:0;width:100%;height:100%;display:block}#hud{position:absolute;inset:0;z-index:2;display:none;pointer-events:none;padding:max(10px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));flex-direction:column;justify-content:space-between}.row{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}.panel{background:#020617dc;border:1px solid #155e75aa;border-radius:10px;padding:8px 11px;box-shadow:0 6px 20px #0007}.muted{font-size:12px;color:#94a3b8}#objective{font-size:13px;color:var(--green);margin-top:3px}#banner{display:none;align-self:center;background:#450a0add;border:1px solid #ef4444;border-radius:8px;padding:9px 14px;text-align:center;max-width:90vw}#start{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;overflow:auto;padding:14px;background:radial-gradient(ellipse at 50% 20%,#082f49,#020617 70%)}.card{width:min(700px,100%);max-height:100%;overflow:auto;background:#0f172aef;border:1px solid #0891b2aa;border-radius:18px;padding:clamp(16px,4vw,30px);text-align:center;box-shadow:0 24px 80px #0009}h1{font-size:clamp(29px,7vw,50px);letter-spacing:.07em;color:var(--cyan);margin:0 0 5px}.subtitle{color:var(--green);margin:0 0 13px}.intro{background:#020617aa;border:1px solid #1e293b;border-radius:10px;padding:12px;text-align:start;line-height:1.55;color:#cbd5e1;margin:11px 0}.label{font-size:12px;color:#94a3b8}.choices{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:8px 0 12px}.choice{border:1px solid #334155;background:#020617;border-radius:9px;padding:10px 13px;min-height:42px}.choice.selected{border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 14px #06b6d433}.primary{background:#06b6d4;color:#020617;border:0;border-radius:10px;padding:13px 22px;font-weight:bold;font-size:17px;margin-top:8px}.primary:hover{background:#67e8f9}.note{font-size:12px;color:#94a3b8;line-height:1.5;margin:9px auto 0;max-width:580px}#mobile{position:absolute;inset:0;z-index:3;display:none;pointer-events:none}#stick{position:absolute;left:14px;bottom:max(15px,env(safe-area-inset-bottom));width:136px;height:136px;pointer-events:auto;touch-action:none}#stickBase,#stickKnob{position:absolute;border-radius:50%;border:2px solid #67e8f966}#stickBase{inset:0;background:#0e749066}#stickKnob{width:56px;height:56px;left:38px;top:38px;background:#22d3ee99}#actions{position:absolute;right:13px;bottom:max(14px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;pointer-events:auto}.action{width:55px;height:55px;border-radius:50%;border:1px solid #67e8f9;background:#082f49e8;font-size:11px;font-weight:bold}.action.main{background:#06b6d4;color:#020617}#lookHint{position:absolute;right:78px;bottom:25px;font-size:10px;color:#bae6fd88}#dialog{position:absolute;inset:0;z-index:4;display:none;align-items:center;justify-content:center;padding:16px;background:#020617cc}.dialogBox{width:min(420px,100%);background:#0f172a;border:1px solid var(--cyan);border-radius:14px;padding:20px;text-align:center}.dialogBox h2{color:var(--cyan);margin:0 0 12px}.rtl{direction:rtl}.rtl .row{direction:rtl}.rtl .intro{text-align:right}@media(max-height:500px){#stick{width:100px;height:100px}#stickKnob{width:46px;height:46px;left:27px;top:27px}.action{width:46px;height:46px}}
+</style>
 </head>
 <body>
-  <div id="game"></div>
-
-  <div id="hud">
-    <div class="row">
-      <div class="panel"><div id="location">SECTOR 13</div><div id="stats" class="muted"></div></div>
-      <div class="panel" style="text-align:end"><div id="objectiveLabel" class="muted">OBJECTIVE</div><div id="objective"></div></div>
-    </div>
-    <div id="banner"></div>
-    <div class="row">
-      <div id="inventory" class="panel muted"></div>
-      <div id="help" class="panel muted">WASD • SHIFT • E • F</div>
-    </div>
-  </div>
-
-  <div id="mobile">
-    <div id="stick"><div id="stickBase"></div><div id="stickKnob"></div></div>
-    <div id="lookHint"></div>
-    <div id="actions">
-      <button class="action" id="lightButton"></button>
-      <button class="action" id="sprintButton"></button>
-      <button class="action main" id="useButton"></button>
-    </div>
-  </div>
-
-  <div id="dialog">
-    <div class="dialogBox">
-      <h2 id="dialogTitle"></h2>
-      <div id="dialogText"></div>
-      <button id="dialogAction" class="primary"></button>
-      <br><button id="dialogClose" class="choice"></button>
-    </div>
-  </div>
-
-  <div id="start">
-    <section class="card">
-      <h1>THE 13TH HOUR</h1>
-      <p class="subtitle">SECTOR 13 // INFILTRATION</p>
-
-      <div class="label" id="languageLabel">LANGUAGE</div>
-      <div class="choices">
-        <button class="choice selected" id="english">English</button>
-        <button class="choice" id="arabic">العربية</button>
-      </div>
-
-      <div id="intro" class="intro"></div>
-
-      <div class="label" id="mapLabel"></div>
-      <div id="maps" class="choices"></div>
-
-      <div class="label" id="modeLabel"></div>
-      <div class="choices">
-        <button class="choice selected" id="botsMode"></button>
-        <button class="choice" id="onlineMode"></button>
-      </div>
-      <div class="note" id="modeNote"></div>
-      <button class="primary" id="startButton"></button>
-      <div class="note" id="startNote"></div>
-    </section>
-  </div>
-
+<div id="game"></div>
+<div id="hud"><div class="row"><div class="panel"><div id="location"></div><div id="stats" class="muted"></div></div><div class="panel" style="text-align:end"><div id="objectiveLabel" class="muted"></div><div id="objective"></div></div></div><div id="banner"></div><div class="row"><div id="inventory" class="panel muted"></div><div id="help" class="panel muted"></div></div></div>
+<div id="mobile"><div id="stick"><div id="stickBase"></div><div id="stickKnob"></div></div><div id="lookHint"></div><div id="actions"><button class="action" id="lightButton"></button><button class="action" id="sprintButton"></button><button class="action main" id="useButton"></button></div></div>
+<div id="dialog"><div class="dialogBox"><h2 id="dialogTitle"></h2><div id="dialogText"></div><button id="dialogAction" class="primary"></button><br><button id="dialogClose" class="choice"></button></div></div>
+<div id="start"><section class="card"><h1>THE 13TH HOUR</h1><p class="subtitle">SECTOR 13 // INFILTRATION</p><div id="languageLabel" class="label"></div><div class="choices"><button class="choice selected" id="english">English</button><button class="choice" id="arabic">العربية</button></div><div id="intro" class="intro"></div><div id="mapLabel" class="label"></div><div id="maps" class="choices"></div><div id="modeLabel" class="label"></div><div class="choices"><button class="choice selected" id="botsMode"></button><button class="choice" id="onlineMode"></button></div><div id="modeNote" class="note"></div><button id="startButton" class="primary"></button><div id="startNote" class="note"></div></section></div>
 <script>
-(() => {
-  "use strict";
-  const $ = id => document.getElementById(id);
-
-  const words = {
-    en: {
-      language:"LANGUAGE", map:"SELECT A SECTOR", mode:"PLAY STYLE",
-      story:"Dr. Vance is trapped in the vault. Find five data chips, decrypt the key, open the vault, purge the virus, then escape.",
-      controls:"Phone: use the left joystick to move, drag the right side to look, and tap the action buttons. Computer: WASD/arrows, mouse drag, Shift to sprint, E to interact, F for light.",
-      bots:"Play with bots", online:"Friends / online",
-      botNote:"Play now with two AI teammates. This mode works without a multiplayer server.",
-      onlineNote:"Online play is not connected yet. GitHub Pages hosts static files but does not connect players; a multiplayer server/signaling service will be needed later.",
-      start:"ENTER THE BUILDING", startNote:"Third-person camera • Mobile controls • No account required",
-      objective:"Collect 5 data chips", chips:(n)=>`CHIPS ${n}/5`, key:(v)=>`TEAM KEY: ${v?"VAULT KEY ALPHA":"NONE"}`,
-      use:"USE", run:"RUN", light:"LIGHT", look:"DRAG TO LOOK",
-      found:"Data chip collected.", all:"All chips found. Use the key dispenser.",
-      need:"Find all five chips first.", dispenser:"KEY DISPENSER",
-      dispenserText:"Decrypt the vault key using all five data chips?", decrypt:"DECRYPT KEY",
-      keyReady:"Key decrypted. Go to the vault door.", door:"VAULT DOOR",
-      doorText:"Use the team key to open the vault?", open:"OPEN VAULT",
-      blocked:"This door needs the team key.", opened:"Vault opening…",
-      core:"NEURAL CORE", coreText:"Purge the virus and start the escape timer?", purge:"PURGE VIRUS",
-      escape:"Purge complete! Escape to the green exit!", purged:"Virus purged. Move to the green exit!",
-      spotted:"A guard spotted you!", caught:"Captured! You were moved back to the entrance.",
-      win:"MISSION COMPLETE", lose:"REINFORCEMENTS ARRIVED",
-      winText:"The team escaped. Dr. Vance is safe.", loseText:"The escape timer ran out. Try again.",
-      again:"PLAY AGAIN", close:"CLOSE", onlineUnavailable:"Online multiplayer is not ready yet. Choose Play with bots."
-    },
-    ar: {
-      language:"اللغة", map:"اختر القطاع", mode:"طريقة اللعب",
-      story:"الدكتور فانس عالق داخل الخزنة. اجمع خمس شرائح بيانات، فك المفتاح، افتح الخزنة، أزل الفيروس ثم اهرب.",
-      controls:"الهاتف: حرّك بالعصا يسارًا، واسحب يمين الشاشة للنظر، واستخدم الأزرار. الكمبيوتر: WASD أو الأسهم، اسحب الفأرة للنظر، Shift للركض، E للتفاعل، F للمصباح.",
-      bots:"اللعب مع بوتات", online:"الأصدقاء / أونلاين",
-      botNote:"العب الآن مع زميلين من البوتات. هذا الوضع لا يحتاج إلى خادم لعب جماعي.",
-      onlineNote:"اللعب عبر الإنترنت غير متصل حاليًا. GitHub Pages يستضيف الملفات فقط ولا يربط اللاعبين؛ سنحتاج لاحقًا إلى خادم أو خدمة اتصال.",
-      start:"ادخل المبنى", startNote:"منظور خلف الشخصية • تحكم للهاتف • لا يحتاج حسابًا",
-      objective:"اجمع ٥ شرائح بيانات", chips:n=>`الشرائح ${n}/5`, key:v=>`مفتاح الفريق: ${v?"مفتاح الخزنة ألفا":"لا يوجد"}`,
-      use:"تفاعل", run:"ركض", light:"ضوء", look:"اسحب للنظر",
-      found:"تم جمع شريحة بيانات.", all:"اكتملت الشرائح. استخدم موزّع المفاتيح.",
-      need:"اجمع الشرائح الخمس أولًا.", dispenser:"موزّع المفاتيح",
-      dispenserText:"هل تريد فك مفتاح الخزنة باستخدام الشرائح الخمس؟", decrypt:"فك المفتاح",
-      keyReady:"تم فك المفتاح. اذهب إلى باب الخزنة.", door:"باب الخزنة",
-      doorText:"هل تستخدم مفتاح الفريق لفتح الخزنة؟", open:"افتح الخزنة",
-      blocked:"هذا الباب يحتاج إلى مفتاح الفريق.", opened:"الخزنة تُفتح…",
-      core:"النواة العصبية", coreText:"هل تزيل الفيروس وتبدأ مؤقت الهرب؟", purge:"إزالة الفيروس",
-      escape:"تم التطهير! اهرب إلى المخرج الأخضر!", purged:"تمت إزالة الفيروس. اتجه إلى المخرج الأخضر!",
-      spotted:"أحد الحراس رآك!", caught:"تم القبض عليك وأُعيدت إلى المدخل.",
-      win:"اكتملت المهمة", lose:"وصلت التعزيزات",
-      winText:"نجح الفريق في الهرب. الدكتور فانس بأمان.", loseText:"انتهى وقت الهرب. حاول مرة أخرى.",
-      again:"العب مرة أخرى", close:"إغلاق", onlineUnavailable:"اللعب عبر الإنترنت غير جاهز. اختر اللعب مع البوتات."
-    }
-  };
-
-  const sectors = [
-    {name:["Cyber Core","النواة السيبرانية"],bg:0x020617,wall:0x14213a,floor:0x0b1220,glow:0x22d3ee},
-    {name:["Abandoned Hospital","المستشفى المهجور"],bg:0x07100c,wall:0x50665a,floor:0x293a32,glow:0xa3e635},
-    {name:["Corporate Tower","برج الشركات"],bg:0x0b1220,wall:0x64748b,floor:0x263244,glow:0xfbbf24}
-  ];
-  let language="en",selectedSector=0,playMode="bots";
-  const t=()=>words[language];
-
-  function renderMenu(){
-    const w=t();
-    document.documentElement.lang=language;
-    document.body.classList.toggle("rtl",language==="ar");
-    $("english").classList.toggle("selected",language==="en");
-    $("arabic").classList.toggle("selected",language==="ar");
-    $("languageLabel").textContent=w.language;
-    $("intro").innerHTML=`<b style="color:#22d3ee">${language==="ar"?"القصة":"STORY"}:</b> ${w.story}<br><br><b style="color:#a5f3fc">${language==="ar"?"التحكم":"CONTROLS"}:</b> ${w.controls}`;
-    $("mapLabel").textContent=w.map;
-    $("modeLabel").textContent=w.mode;
-    $("botsMode").textContent=w.bots;
-    $("onlineMode").textContent=w.online;
-    $("botsMode").classList.toggle("selected",playMode==="bots");
-    $("onlineMode").classList.toggle("selected",playMode==="online");
-    $("modeNote").textContent=playMode==="bots"?w.botNote:w.onlineNote;
-    $("startButton").textContent=w.start;
-    $("startNote").textContent=w.startNote;
-    $("maps").replaceChildren();
-    sectors.forEach((s,i)=>{
-      const b=document.createElement("button");
-      b.className="choice"+(i===selectedSector?" selected":"");
-      b.textContent=s.name[language==="ar"?1:0];
-      b.onclick=()=>{selectedSector=i;renderMenu()};
-      $("maps").appendChild(b);
-    });
-  }
-
-  $("english").onclick=()=>{language="en";renderMenu()};
-  $("arabic").onclick=()=>{language="ar";renderMenu()};
-  $("botsMode").onclick=()=>{playMode="bots";renderMenu()};
-  $("onlineMode").onclick=()=>{playMode="online";renderMenu()};
-
-  let scene,camera,renderer,clock,player,flash,started=false,finished=false;
-  let chips=[],bots=[],guards=[],interactables=[],door,core,exitMark,terminal;
-  let keyFound=false,vaultOpen=false,phase=0,escapeTime=0,camYaw=0,camPitch=.22,nearby=null;
-  let joystick={id:null,x:0,y:0,cx:0,cy:0},keys={},sprintTouch=false,lookPointer=null;
-  const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
-  const dist=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
-  const solid=[];
-
-  function material(color,roughness=.8,metalness=0){return new THREE.MeshStandardMaterial({color,roughness,metalness})}
-  function addBox(w,h,d,x,y,z,mat,collide=true){
-    const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);
-    m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;scene.add(m);
-    if(collide)solid.push({x1:x-w/2,x2:x+w/2,z1:z-d/2,z2:z+d/2});
-    return m;
-  }
-
-  function makePerson(shirt,skin=0xf2c291,isGuard=false){
-    const group=new THREE.Group(),clothes=material(shirt),skinMat=material(skin),pants=material(isGuard?0x111827:0x263244),limbs=[];
-    const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.28,.42,4,8),clothes);torso.position.y=1.08;torso.castShadow=true;group.add(torso);
-    const head=new THREE.Mesh(new THREE.SphereGeometry(.22,12,10),skinMat);head.position.y=1.73;head.castShadow=true;group.add(head);
-    const hair=new THREE.Mesh(new THREE.SphereGeometry(.225,10,8,0,Math.PI*2,0,Math.PI*.52),material(isGuard?0x111827:0x29211e));hair.position.y=1.79;group.add(hair);
-    for(const side of [-1,1]){
-      const leg=new THREE.Mesh(new THREE.CapsuleGeometry(.095,.38,3,6),pants);leg.position.set(side*.12,.48,0);leg.castShadow=true;group.add(leg);limbs.push({mesh:leg,phase:side*Math.PI,isLeg:true});
-      const arm=new THREE.Mesh(new THREE.CapsuleGeometry(.07,.34,3,6),clothes);arm.position.set(side*.36,1.08,0);arm.castShadow=true;group.add(arm);limbs.push({mesh:arm,phase:-side*Math.PI,isLeg:false});
-    }
-    if(isGuard){const badge=new THREE.Mesh(new THREE.BoxGeometry(.14,.12,.04),new THREE.MeshBasicMaterial({color:0xfbbf24}));badge.position.set(0,1.16,.27);group.add(badge)}
-    return {group,limbs,walk:Math.random()*6,guard:isGuard};
-  }
-
-  function makeTerminal(x,z,type,color){
-    const g=new THREE.Group();
-    const base=new THREE.Mesh(new THREE.CylinderGeometry(.42,.52,1.15,8),material(0x1e293b,.4,.6));base.position.y=.57;base.castShadow=true;g.add(base);
-    const screen=new THREE.Mesh(new THREE.BoxGeometry(.85,.55,.09),new THREE.MeshBasicMaterial({color}));screen.position.set(0,1.28,.05);g.add(screen);
-    g.position.set(x,0,z);g.userData={type};scene.add(g);interactables.push(g);return g;
-  }
-
-  function buildWorld(){
-    const sector=sectors[selectedSector];
-    scene=new THREE.Scene();
-    scene.background=new THREE.Color(sector.bg);
-    scene.fog=new THREE.FogExp2(sector.bg,.014);
-    scene.add(new THREE.HemisphereLight(0xc5efff,0x101827,1.4));
-    const sun=new THREE.DirectionalLight(0xffffff,1.15);sun.position.set(10,22,12);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);scene.add(sun);
-
-    const floor=new THREE.Mesh(new THREE.PlaneGeometry(58,58),material(sector.floor,.9,.15));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;scene.add(floor);
-    const wall=material(sector.wall);
-    addBox(56,4.2,.7,0,2,-28,wall);addBox(56,4.2,.7,0,2,28,wall);
-    addBox(.7,4.2,56,-28,2,0,wall);addBox(.7,4.2,56,28,2,0,wall);
-
-    // Low walls create multiple routes while leaving the center open.
-    for(const z of [-14,0,14]){
-      if(z===0)continue;
-      addBox(17,3.8,.4,-19,1.9,z,wall);addBox(17,3.8,.4,19,1.9,z,wall);
-    }
-    const glow=new THREE.MeshBasicMaterial({color:sector.glow});
-    for(let x=-18;x<=18;x+=12){const strip=new THREE.Mesh(new THREE.BoxGeometry(.07,.025,52),glow);strip.position.set(x,.025,0);scene.add(strip)}
-    for(let i=0;i<8;i++){
-      const x=-20+(i%4)*13,z=-19+Math.floor(i/4)*38;
-      addBox(1.3,1.1,1.3,x,.55,z,material(i%2?0x334155:0x1e293b));
-    }
-
-    player=makePerson(0x2563eb,0xf2c291);player.group.position.set(0,0,21);scene.add(player.group);
-    bots=[];
-    for(let i=0;i<2;i++){const bot=makePerson(i?0x8b5cf6:0x10b981,i?0xd97706:0xfcd34d);bot.group.position.set(i?2:-2,0,18+i);bot.offset=i?2:-2;bot.bot=true;scene.add(bot.group);bots.push(bot)}
-
-    guards=[];
-    for(let i=0;i<3;i++){
-      const guard=makePerson(0x334155,i%2?0xd97706:0xfcd34d,true);
-      guard.group.position.set(-18+i*18,0,i%2?-17:17);
-      guard.route=[[-19+i*18,-17],[-19+i*18,17],[19-i*10,17],[19-i*10,-17]];
-      guard.routeIndex=0;guard.alert=0;guard.cooldown=0;scene.add(guard.group);guards.push(guard);
-    }
-
-    chips=[];
-    const spots=[[-21,18],[21,12],[-20,-15],[20,-17],[0,-19]];
-    spots.forEach(([x,z])=>{
-      const mesh=new THREE.Mesh(new THREE.OctahedronGeometry(.36),new THREE.MeshStandardMaterial({color:sector.glow,emissive:sector.glow,emissiveIntensity:1.3,metalness:.3,roughness:.3}));
-      mesh.position.set(x,1.2,z);mesh.castShadow=true;scene.add(mesh);
-      const light=new THREE.PointLight(sector.glow,.55,4);mesh.add(light);chips.push({mesh,found:false});
-    });
-
-    terminal=makeTerminal(-2,3,"terminal",0x34d399);
-    door=makeTerminal(0,-23,"door",0x22d3ee);
-    core=new THREE.Mesh(new THREE.IcosahedronGeometry(.65,1),new THREE.MeshStandardMaterial({color:0x34d399,wireframe:true,emissive:0x10b981,emissiveIntensity:1.4}));
-    core.position.set(0,1.5,-25);core.visible=false;core.userData={type:"core"};scene.add(core);interactables.push(core);
-    exitMark=new THREE.Mesh(new THREE.CylinderGeometry(1.7,1.7,.1,28),new THREE.MeshBasicMaterial({color:0x22c55e,transparent:true,opacity:.8}));
-    exitMark.position.set(0,.08,24);exitMark.visible=false;scene.add(exitMark);
-
-    camera=new THREE.PerspectiveCamera(62,innerWidth/innerHeight,.1,100);
-    renderer=new THREE.WebGLRenderer({antialias:innerWidth>700,powerPreference:"high-performance"});
-    renderer.setPixelRatio(Math.min(devicePixelRatio||1,innerWidth<700?1.25:1.6));renderer.setSize(innerWidth,innerHeight);
-    renderer.shadowMap.enabled=innerWidth>700;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-    renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;
-    $("game").replaceChildren(renderer.domElement);
-    flash=new THREE.SpotLight(0xfff1d6,1.7,19,.55,.5,1);flash.castShadow=false;scene.add(flash,flash.target);
-    clock=new THREE.Clock();updateHud();
-  }
-
-  function updateHud(){
-    const found=chips.filter(c=>c.found).length;
-    $("location").textContent=(language==="ar"?"القطاع ١٣ // ":"SECTOR 13 // ")+sectors[selectedSector].name[language==="ar"?1:0].toUpperCase();
-    $("stats").textContent=t().chips(found);
-    $("inventory").textContent=t().key(keyFound);
-    $("objectiveLabel").textContent=language==="ar"?"المهمة":"OBJECTIVE";
-    $("objective").textContent=phase===0?t().objective:phase===1?t().keyReady:phase===2?t().vaultOpen:t().escape;
-    $("help").textContent=language==="ar"?"عصا الحركة • اسحب للنظر • ركض • تفاعل":"MOVE • DRAG LOOK • RUN • USE";
-    $("useButton").textContent=t().use;$("sprintButton").textContent=t().run;$("lightButton").textContent=t().light;$("lookHint").textContent=t().look;
-  }
-
-  let bannerTimeout;
-  function notify(s){$("banner").textContent=s;$("banner").style.display="block";clearTimeout(bannerTimeout);bannerTimeout=setTimeout(()=>$("banner").style.display="none",2200)}
-  function showDialog(title,message,action,callback){
-    $("dialogTitle").textContent=title;$("dialogText").textContent=message;
-    $("dialogAction").textContent=action;$("dialogClose").textContent=t().close;
-    $("dialogAction").onclick=()=>{callback();$("dialog").style.display="none"};
-    $("dialog").style.display="flex";
-  }
-
-  function interact(){
-    if(!started||finished)return;
-    if(!nearby)return;
-    const type=nearby.userData.type;
-    if(type==="terminal"){
-      if(chips.every(c=>c.found)){
-        showDialog(t().dispenser,t().dispenserText,t().decrypt,()=>{keyFound=true;phase=1;updateHud();notify(t().keyReady)});
-      }else notify(t().need);
-    }else if(type==="door"){
-      if(!keyFound){notify(t().blocked);return}
-      showDialog(t().door,t().doorText,t().open,()=>{vaultOpen=true;phase=2;door.visible=false;core.visible=true;updateHud();notify(t().opened)});
-    }else if(type==="core"&&vaultOpen){
-      showDialog(t().core,t().coreText,t().purge,()=>{phase=3;escapeTime=90;exitMark.visible=true;updateHud();notify(t().purged)});
-    }
-  }
-
-  function findNearby(){
-    nearby=null;let best=3;
-    for(const o of interactables){
-      if(o.userData.type==="core"&&!vaultOpen)continue;
-      const d=dist(player.group.position,o.position);
-      if(d<best){best=d;nearby=o}
-    }
-    $("useButton").style.opacity=nearby?"1":".62";
-  }
-
-  function getInput(){
-    let x=joystick.x,y=joystick.y;
-    if(keys.KeyA||keys.ArrowLeft)x--;
-    if(keys.KeyD||keys.ArrowRight)x++;
-    if(keys.KeyW||keys.ArrowUp)y++;
-    if(keys.KeyS||keys.ArrowDown)y--;
-    const length=Math.hypot(x,y);
-    if(length>1){x/=length;y/=length}
-    return{x,y};
-  }
-
-  function collides(x,z){
-    return solid.some(c=>x>c.x1-.38&&x<c.x2+.38&&z>c.z1-.38&&z<c.z2+.38);
-  }
-
-  function animatePerson(p,dt,speed){
-    p.walk+=dt*(speed>0.3?7+speed*1.3:0);
-    for(const limb of p.limbs)limb.mesh.rotation.x=Math.sin(p.walk+limb.phase)*(limb.isLeg?.48:.24)*Math.min(1,speed/2);
-    p.group.position.y=Math.abs(Math.sin(p.walk*2))*.025*Math.min(1,speed/2);
-  }
-
-  function movePlayer(dt){
-    const input=getInput(),run=keys.ShiftLeft||keys.ShiftRight||sprintTouch,speed=run?6.6:4.1;
-    const dx=(-Math.sin(camYaw)*input.y+Math.cos(camYaw)*input.x)*speed*dt;
-    const dz=(-Math.cos(camYaw)*input.y-Math.sin(camYaw)*input.x)*speed*dt;
-    const p=player.group.position,nx=clamp(p.x+dx,-26.4,26.4),nz=clamp(p.z+dz,-26.4,26.4);
-    if(!collides(nx,p.z))p.x=nx;
-    if(!collides(p.x,nz))p.z=nz;
-    const moving=Math.hypot(input.x,input.y)>.05;
-    if(moving)player.group.rotation.y=Math.atan2(dx,-dz);
-    animatePerson(player,dt,moving?speed:0);
-  }
-
-  function updateBots(dt){
-    const p=player.group.position;
-    bots.forEach((b,i)=>{
-      const tx=p.x+Math.sin(camYaw)*(2.6+i*.3)+Math.cos(camYaw)*(i?1.5:-1.5);
-      const tz=p.z-Math.cos(camYaw)*(2.6+i*.3)+Math.sin(camYaw)*(i?1.5:-1.5);
-      const dx=tx-b.group.position.x,dz=tz-b.group.position.z,d=Math.hypot(dx,dz);
-      if(d>1.3){const step=Math.min(d-1.1,3*dt);b.group.position.x+=dx/d*step;b.group.position.z+=dz/d*step;b.group.rotation.y=Math.atan2(dx,dz);animatePerson(b,dt,3)}
-      else animatePerson(b,dt,0);
-    });
-  }
-
-  function updateGuards(dt){
-    const p=player.group.position;
-    guards.forEach(g=>{
-      const dx=p.x-g.group.position.x,dz=p.z-g.group.position.z,d=Math.hypot(dx,dz);
-      if(d<7.5&&Math.random()<.045)g.alert=4;
-      if(g.alert>0){
-        g.alert-=dt;
-        if(d>1.15){g.group.position.x+=dx/d*2.7*dt;g.group.position.z+=dz/d*2.7*dt;g.group.rotation.y=Math.atan2(dx,dz);animatePerson(g,dt,2.7)}
-        else if(g.cooldown<=0){p.set(0,0,21);g.cooldown=4;g.alert=0;notify(t().caught)}
-      }else{
-        const target=g.route[g.routeIndex],tx=target[0]-g.group.position.x,tz=target[1]-g.group.position.z,len=Math.hypot(tx,tz);
-        if(len<.8)g.routeIndex=(g.routeIndex+1)%g.route.length;
-        else{g.group.position.x+=tx/len*1.25*dt;g.group.position.z+=tz/len*1.25*dt;g.group.rotation.y=Math.atan2(tx,tz);animatePerson(g,dt,1.25)}
-      }
-      g.cooldown=Math.max(0,g.cooldown-dt);
-    });
-  }
-
-  function updateCamera(dt){
-    const p=player.group.position,distance=8.2,height=3.1+camPitch*3.5;
-    const desired=new THREE.Vector3(p.x+Math.sin(camYaw)*distance,p.y+height,p.z+Math.cos(camYaw)*distance);
-    camera.position.lerp(desired,1-Math.exp(-7*dt));
-    camera.lookAt(p.x,p.y+1.05,p.z);
-    flash.position.copy(camera.position);flash.target.position.set(p.x,1,p.z-4);
-  }
-
-  function update(dt,time){
-    if(!renderer||!scene)return;
-    if(started&&!finished){
-      movePlayer(dt);updateBots(dt);updateGuards(dt);findNearby();
-      chips.forEach(c=>{
-        if(!c.found&&dist(player.group.position,c.mesh.position)<1.15){
-          c.found=true;c.mesh.visible=false;notify(t().found);
-          if(chips.every(x=>x.found))notify(t().all);
-          updateHud();
-        }
-      });
-      if(phase===3){
-        escapeTime-=dt;
-        $("objective").textContent=`${t().escape} ${Math.ceil(escapeTime)}s`;
-        if(dist(player.group.position,exitMark.position)<2.2)finish(true);
-        else if(escapeTime<=0)finish(false);
-      }
-    }
-    chips.forEach((c,i)=>{if(!c.found){c.mesh.rotation.y+=dt*1.5;c.mesh.position.y=1.2+Math.sin(time*2+i)*.12}});
-    if(core.visible){core.rotation.y+=dt;core.position.y=1.5+Math.sin(time*2)*.12}
-    if(exitMark.visible)exitMark.material.opacity=.55+.35*Math.sin(time*5);
-    if(player)updateCamera(dt);
-    renderer.render(scene,camera);
-  }
-
-  function finish(win){
-    if(finished)return;finished=true;started=false;
-    $("mobile").style.display="none";
-    showDialog(win?t().win:t().lose,win?t().winText:t().loseText,t().again,()=>location.reload());
-    $("dialogClose").style.display="none";
-  }
-
-  function startGame(){
-    if(playMode==="online"){alert(t().onlineUnavailable);return}
-    if(!window.THREE){alert("Three.js failed to load. Check your internet connection.");return}
-    try{buildWorld()}catch(e){console.error(e);alert("The game could not start. Reload the page.");return}
-    started=true;$("start").style.display="none";$("hud").style.display="flex";$("mobile").style.display="block";updateHud();
-  }
-
-  $("startButton").onclick=startGame;
-  $("dialogClose").onclick=()=>$("dialog").style.display="none";
-  $("useButton").onclick=interact;
-  $("lightButton").onclick=()=>{if(flash)flash.visible=!flash.visible};
-  $("sprintButton").addEventListener("pointerdown",e=>{e.preventDefault();sprintTouch=true});
-  ["pointerup","pointercancel","pointerleave"].forEach(type=>$("sprintButton").addEventListener(type,()=>sprintTouch=false));
-
-  addEventListener("keydown",e=>{
-    keys[e.code]=true;
-    if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","Space"].includes(e.code))e.preventDefault();
-    if(e.code==="KeyE"||e.code==="Enter")interact();
-    if(e.code==="KeyF"&&flash)flash.visible=!flash.visible;
-  });
-  addEventListener("keyup",e=>keys[e.code]=false);
-  addEventListener("blur",()=>{keys={};sprintTouch=false});
-
-  const stick=$("stick"),knob=$("stickKnob");
-  stick.addEventListener("pointerdown",e=>{
-    e.preventDefault();stick.setPointerCapture(e.pointerId);joystick.id=e.pointerId;
-    const r=stick.getBoundingClientRect();joystick.cx=r.left+r.width/2;joystick.cy=r.top+r.height/2;updateStick(e);
-  });
-  stick.addEventListener("pointermove",e=>{if(e.pointerId===joystick.id)updateStick(e)});
-  function updateStick(e){
-    const dx=e.clientX-joystick.cx,dy=e.clientY-joystick.cy,max=42,len=Math.hypot(dx,dy),scale=len>max?max/len:1;
-    joystick.x=dx*scale/max;joystick.y=-dy*scale/max;knob.style.transform=`translate(${dx*scale}px,${dy*scale}px)`;
-  }
-  function stopStick(e){
-    if(e.pointerId!==joystick.id)return;
-    joystick.id=null;joystick.x=joystick.y=0;knob.style.transform="";
-  }
-  stick.addEventListener("pointerup",stopStick);stick.addEventListener("pointercancel",stopStick);
-
-  let mouseLook=false,lastX=0,lastY=0;
-  document.addEventListener("pointerdown",e=>{
-    if(!started||e.target.closest("button")||e.target.closest("#stick"))return;
-    if(e.pointerType==="touch"&&e.clientX>innerWidth*.4){lookPointer=e.pointerId;lastX=e.clientX;lastY=e.clientY}
-  });
-  document.addEventListener("pointermove",e=>{
-    if(e.pointerId!==lookPointer)return;
-    camYaw-=(e.clientX-lastX)*.008;camPitch=clamp(camPitch-(e.clientY-lastY)*.004,-.05,.8);lastX=e.clientX;lastY=e.clientY;
-  });
-  document.addEventListener("pointerup",e=>{if(e.pointerId===lookPointer)lookPointer=null});
-  document.addEventListener("mousedown",e=>{if(started&&!e.target.closest("button")){mouseLook=true;lastX=e.clientX;lastY=e.clientY}});
-  document.addEventListener("mouseup",()=>mouseLook=false);
-  document.addEventListener("mousemove",e=>{if(mouseLook&&started){camYaw-=(e.clientX-lastX)*.004;camPitch=clamp(camPitch-(e.clientY-lastY)*.002,-.05,.8);lastX=e.clientX;lastY=e.clientY}});
-
-  addEventListener("resize",()=>{
-    if(!renderer||!camera)return;
-    camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);
-    renderer.setPixelRatio(Math.min(devicePixelRatio||1,innerWidth<700?1.25:1.6));renderer.shadowMap.enabled=innerWidth>700;
-  });
-
-  renderMenu();
-  try{
-    scene=new THREE.Scene();camera=new THREE.PerspectiveCamera(62,innerWidth/innerHeight,.1,100);
-    renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:"high-performance"});
-    renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.3));
-    renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;
-    $("game").appendChild(renderer.domElement);clock=new THREE.Clock();
-    (function loop(){requestAnimationFrame(loop);if(renderer)update(Math.min(clock.getDelta(),.05),clock.elapsedTime)})();
-  }catch(e){console.error(e);$("startNote").textContent="3D graphics could not start. Try a browser with WebGL enabled."}
+(()=>{'use strict';
+const $=id=>document.getElementById(id);
+const L={en:{language:'LANGUAGE',map:'SELECT A SECTOR',mode:'PLAY STYLE',story:'Dr. Vance is trapped in the vault. Find five data chips, decrypt the key, open the vault, purge the virus, then escape.',controls:'Phone: joystick on the left, drag the right side to look, use the action buttons. Computer: WASD/arrows, drag mouse to look, Shift to sprint, E to interact, F for light.',bots:'Play with bots',online:'Friends / online',botNote:'Playable now with two AI teammates. Bots mode works without a multiplayer server.',onlineNote:'Online play is not connected yet. GitHub Pages hosts files but cannot connect players; a multiplayer server/signaling service will be needed later.',start:'ENTER THE BUILDING',startNote:'Third-person camera • Mobile controls • No account required',objective:['Collect 5 data chips','Decrypt the team key','Open the vault','Reach the green exit'],chips:n=>`CHIPS ${n}/5`,key:v=>`TEAM KEY: ${v?'VAULT KEY ALPHA':'NONE'}`,use:'USE',run:'RUN',light:'LIGHT',look:'DRAG TO LOOK',found:'Data chip collected.',all:'All chips found. Use the key dispenser.',need:'Find all five chips first.',terminal:'KEY DISPENSER',terminalText:'Decrypt the vault key using all five data chips?',decrypt:'DECRYPT KEY',keyReady:'Key decrypted. Go to the vault door.',door:'VAULT DOOR',doorText:'Use the team key to open the vault?',open:'OPEN VAULT',blocked:'This door needs the team key.',opened:'Vault opening…',core:'NEURAL CORE',coreText:'Purge the virus and start the escape timer?',purge:'PURGE VIRUS',purged:'Virus purged. Escape to the green exit!',caught:'A guard caught you. You were returned to the entrance.',spotted:'A guard spotted you!',win:'MISSION COMPLETE',lose:'TIME EXPIRED',winText:'The team escaped. Dr. Vance is safe.',loseText:'The escape timer ran out. Try again.',again:'PLAY AGAIN',close:'CLOSE',onlineUnavailable:'Online multiplayer is not ready yet. Choose Play with bots.',names:['Cyber Core','Abandoned Hospital','Corporate Tower']},ar:{language:'اللغة',map:'اختر القطاع',mode:'طريقة اللعب',story:'الدكتور فانس عالق داخل الخزنة. اجمع خمس شرائح بيانات، فك المفتاح، افتح الخزنة، أزل الفيروس ثم اهرب.',controls:'الهاتف: عصا الحركة يسارًا، اسحب يمين الشاشة للنظر، واستخدم الأزرار. الكمبيوتر: WASD أو الأسهم، اسحب الفأرة للنظر، Shift للركض، E للتفاعل، F للمصباح.',bots:'اللعب مع بوتات',online:'الأصدقاء / أونلاين',botNote:'يمكنك اللعب الآن مع زميلين من البوتات، دون الحاجة إلى خادم.',onlineNote:'اللعب عبر الإنترنت غير متصل الآن. GitHub Pages يستضيف الملفات ولا يربط اللاعبين؛ سنحتاج لاحقًا إلى خادم أو خدمة ات��ال.',start:'ادخل المبنى',startNote:'منظور خلف الشخصية • تحكم للهاتف • لا يحتاج حسابًا',objective:['اجمع ٥ شرائح بيانات','فك مفتاح الفريق','افتح الخزنة','اهرب إلى المخرج الأخضر'],chips:n=>`الشرائح ${n}/5`,key:v=>`مفتاح الفريق: ${v?'مفتاح الخزنة ألفا':'لا يوجد'}`,use:'تفاعل',run:'ركض',light:'ضوء',look:'اسحب للنظر',found:'تم جمع شريحة بيانات.',all:'اكتملت الشرائح. استخدم موزّع المفاتيح.',need:'اجمع الشرائح الخمس أولًا.',terminal:'موزّع المفاتيح',terminalText:'هل تفك مفتاح الخزنة باستخدام الشرائح الخمس؟',decrypt:'فك المفتاح',keyReady:'تم فك المفتاح. اذهب إلى باب الخزنة.',door:'باب الخزنة',doorText:'هل تستخدم مفتاح الفريق لفتح الخزنة؟',open:'افتح الخزنة',blocked:'هذا الباب يحتاج إلى مفتاح الفريق.',opened:'الخزنة تُفتح…',core:'النواة العصبية',coreText:'هل تزيل الفيروس وتبدأ مؤقت الهرب؟',purge:'إزالة الفيروس',purged:'تم التطهير! اهرب إلى المخرج الأخضر!',caught:'أمسك بك الحارس وأعادك إلى المدخل.',spotted:'أحد الحراس رآك!',win:'اكتملت المهمة',lose:'انتهى الوقت',winText:'نجح الفريق في الهرب. الدكتور فانس بأمان.',loseText:'انتهى وقت الهرب. حاول مرة أخرى.',again:'العب مرة أخرى',close:'إغلاق',onlineUnavailable:'اللعب عبر الإنترنت غير جاهز. اختر اللعب مع البوتات.',names:['النواة السيبرانية','المستشفى المهجور','برج الشركات']}};
+let lang='en',mapIndex=0,mode='bots';const tr=()=>L[lang];
+const maps=[{bg:0x020617,wall:0x14213a,floor:0x0b1220,glow:0x22d3ee},{bg:0x07100c,wall:0x50665a,floor:0x293a32,glow:0xa3e635},{bg:0x0b1220,wall:0x64748b,floor:0x263244,glow:0xfbbf24}];
+function renderMenu(){const w=tr();document.documentElement.lang=lang;document.body.classList.toggle('rtl',lang==='ar');$('english').classList.toggle('selected',lang==='en');$('arabic').classList.toggle('selected',lang==='ar');$('languageLabel').textContent=w.language;$('mapLabel').textContent=w.map;$('modeLabel').textContent=w.mode;$('intro').innerHTML=`<b style="color:#22d3ee">${lang==='ar'?'القصة':'STORY'}:</b> ${w.story}<br><br><b style="color:#a5f3fc">${lang==='ar'?'التحكم':'CONTROLS'}:</b> ${w.controls}`;$('botsMode').textContent=w.bots;$('onlineMode').textContent=w.online;$('botsMode').classList.toggle('selected',mode==='bots');$('onlineMode').classList.toggle('selected',mode==='online');$('modeNote').textContent=mode==='bots'?w.botNote:w.onlineNote;$('startButton').textContent=w.start;$('startNote').textContent=w.startNote;$('maps').replaceChildren();w.names.forEach((name,i)=>{const b=document.createElement('button');b.className='choice'+(mapIndex===i?' selected':'');b.textContent=name;b.onclick=()=>{mapIndex=i;renderMenu()};$('maps').appendChild(b)})}
+$('english').onclick=()=>{lang='en';renderMenu()};$('arabic').onclick=()=>{lang='ar';renderMenu()};$('botsMode').onclick=()=>{mode='bots';renderMenu()};$('onlineMode').onclick=()=>{mode='online';renderMenu()};
+let scene,camera,renderer,clock,player,flash,started=false,finished=false,found=0,hasKey=false,vaultOpen=false,phase=0,escapeTimer=0,camYaw=0,camPitch=.22,nearby=null,bots=[],guards=[],chips=[],objects=[],solid=[],joystick={id:null,x:0,y:0,cx:0,cy:0},keys={},sprintTouch=false,lookId=null,lastLook={x:0,y:0},toastTimeout;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),distance=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
+function mat(color,roughness=.8,metalness=0){return new THREE.MeshStandardMaterial({color,roughness,metalness})}
+function addBox(w,h,d,x,y,z,m,collision=true){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;scene.add(o);if(collision)solid.push({x1:x-w/2,x2:x+w/2,z1:z-d/2,z2:z+d/2});return o}
+function person(shirt,skin=0xf2c291,isGuard=false){const group=new THREE.Group(),clothes=mat(shirt),skinMat=mat(skin),pants=mat(isGuard?0x111827:0x263244),limbs=[];const torso=new THREE.Mesh(new THREE.CylinderGeometry(.22,.29,.68,10),clothes);torso.position.y=1.08;torso.castShadow=true;group.add(torso);const head=new THREE.Mesh(new THREE.SphereGeometry(.22,12,10),skinMat);head.position.y=1.62;head.castShadow=true;group.add(head);const hair=new THREE.Mesh(new THREE.SphereGeometry(.225,10,8,0,Math.PI*2,0,Math.PI*.52),mat(isGuard?0x111827:0x29211e));hair.position.y=1.68;group.add(hair);for(const s of [-1,1]){for(const cfg of [{x:s*.12,y:.78,r:.105,len:.48,m:pants,leg:true},{x:s*.36,y:1.32,r:.075,len:.48,m:clothes,leg:false}]){const pivot=new THREE.Group();pivot.position.set(cfg.x,cfg.y,0);const shaft=new THREE.Mesh(new THREE.CylinderGeometry(cfg.r*.82,cfg.r,cfg.len,8),cfg.m);shaft.position.y=-cfg.len/2;shaft.castShadow=true;pivot.add(shaft);group.add(pivot);limbs.push({pivot,phase:s*Math.PI*(cfg.leg?1:-1),leg:cfg.leg})}}if(isGuard){const badge=new THREE.Mesh(new THREE.BoxGeometry(.14,.12,.04),new THREE.MeshBasicMaterial({color:0xfbbf24}));badge.position.set(0,1.15,.27);group.add(badge)}return{group,limbs,walk:Math.random()*6,guard:isGuard,alert:0,cooldown:0}}
+function makeNode(type,x,z,color){const g=new THREE.Group(),base=new THREE.Mesh(new THREE.CylinderGeometry(.42,.52,1.1,8),mat(0x1e293b,.4,.6));base.position.y=.55;base.castShadow=true;g.add(base);const screen=new THREE.Mesh(new THREE.BoxGeometry(.82,.52,.08),new THREE.MeshBasicMaterial({color}));screen.position.set(0,1.2,.06);g.add(screen);g.position.set(x,0,z);g.userData={type};scene.add(g);objects.push(g);return g}
+function buildWorld(){const m=maps[mapIndex];scene=new THREE.Scene();scene.background=new THREE.Color(m.bg);scene.fog=new THREE.FogExp2(m.bg,.012);scene.add(new THREE.HemisphereLight(0xc5efff,0x101827,1.45));const sun=new THREE.DirectionalLight(0xffffff,1.1);sun.position.set(9,20,10);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);scene.add(sun);const floor=new THREE.Mesh(new THREE.PlaneGeometry(58,58),mat(m.floor,.9,.15));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;scene.add(floor);const wall=mat(m.wall);addBox(56,4.2,.7,0,2,-28,wall);addBox(56,4.2,.7,0,2,28,wall);addBox(.7,4.2,56,-28,2,0,wall);addBox(.7,4.2,56,28,2,0,wall);for(const z of [-14,14]){addBox(17,3.8,.4,-19,1.9,z,wall);addBox(17,3.8,.4,19,1.9,z,wall)}const neon=new THREE.MeshBasicMaterial({color:m.glow});for(let x=-18;x<=18;x+=12){const line=new THREE.Mesh(new THREE.BoxGeometry(.07,.025,52),neon);line.position.set(x,.025,0);scene.add(line)}for(let i=0;i<8;i++){const x=-20+(i%4)*13,z=-19+Math.floor(i/4)*38;addBox(1.2,.9,1.2,x,.45,z,mat(i%2?0x334155:0x1e293b))}
+ player=person(0x2563eb);player.group.position.set(0,0,21);scene.add(player.group);bots=[];for(let i=0;i<2;i++){const b=person(i?0x8b5cf6:0x10b981,i?0xd97706:0xfcd34d);b.group.position.set(i?2:-2,0,18+i);b.offset=i?1:-1;scene.add(b.group);bots.push(b)}guards=[];for(let i=0;i<3;i++){const g=person(0x334155,i%2?0xd97706:0xfcd34d,true);g.group.position.set(-18+i*18,0,i%2?-17:17);g.route=[[-19+i*18,-17],[-19+i*18,17],[19-i*10,17],[19-i*10,-17]];g.routeIndex=0;scene.add(g.group);guards.push(g)}chips=[];[[-21,18],[21,12],[-20,-15],[20,-17],[0,-19]].forEach(([x,z])=>{const mesh=new THREE.Mesh(new THREE.OctahedronGeometry(.36),new THREE.MeshStandardMaterial({color:m.glow,emissive:m.glow,emissiveIntensity:1.2}));mesh.position.set(x,1.2,z);scene.add(mesh);const l=new THREE.PointLight(m.glow,.5,4);mesh.add(l);chips.push({mesh,found:false})});makeNode('terminal',-2,3,0x34d399);makeNode('door',0,-23,0x22d3ee);const core=new THREE.Mesh(new THREE.IcosahedronGeometry(.65,1),new THREE.MeshStandardMaterial({color:0x34d399,wireframe:true,emissive:0x10b981,emissiveIntensity:1.4}));core.position.set(0,1.5,-25);core.visible=false;core.userData={type:'core'};scene.add(core);objects.push(core);const exit=new THREE.Mesh(new THREE.CylinderGeometry(1.7,1.7,.1,28),new THREE.MeshBasicMaterial({color:0x22c55e,transparent:true,opacity:.8}));exit.position.set(0,.08,24);exit.visible=false;scene.add(exit);world={core,exit};camera=new THREE.PerspectiveCamera(62,innerWidth/innerHeight,.1,100);renderer=new THREE.WebGLRenderer({antialias:innerWidth>700,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,innerWidth<700?1.25:1.6));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=innerWidth>700;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;$('game').replaceChildren(renderer.domElement);flash=new THREE.SpotLight(0xfff1d6,1.7,18,.55,.5,1);scene.add(flash,flash.target);clock=new THREE.Clock();updateHud()}
+function updateHud(){const w=tr();$('location').textContent=(lang==='ar'?'القطاع ١٣ // ':'SECTOR 13 // ')+w.names[mapIndex];$('stats').textContent=w.chips(found);$('inventory').textContent=w.key(hasKey);$('objectiveLabel').textContent=lang==='ar'?'المهمة':'OBJECTIVE';$('objective').textContent=w.objective[Math.min(phase,3)];$('help').textContent=lang==='ar'?'عصا الحركة • اسحب للنظر • ركض • تفاعل':'MOVE • DRAG LOOK • RUN • USE';$('useButton').textContent=w.use;$('sprintButton').textContent=w.run;$('lightButton').textContent=w.light;$('lookHint').textContent=w.look}
+function notify(message){$('banner').textContent=message;$('banner').style.display='block';clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>$('banner').style.display='none',2300)}
+function showDialog(title,message,action,callback){$('dialogTitle').textContent=title;$('dialogText').textContent=message;$('dialogAction').textContent=action;$('dialogClose').textContent=tr().close;$('dialogAction').onclick=()=>{callback();$('dialog').style.display='none'};$('dialog').style.display='flex'}
+function interact(){if(!started||finished||!nearby)return;const w=tr(),type=nearby.userData.type;if(type==='terminal'){if(found<5){notify(w.need);return}showDialog(w.terminal,w.terminalText,w.decrypt,()=>{hasKey=true;phase=1;updateHud();notify(w.keyReady)})}else if(type==='door'){if(!hasKey){notify(w.blocked);return}showDialog(w.door,w.doorText,w.open,()=>{vaultOpen=true;phase=2;world.core.visible=true;updateHud();notify(w.opened)})}else if(type==='core'&&vaultOpen){showDialog(w.core,w.coreText,w.purge,()=>{phase=3;escapeTimer=90;world.exit.visible=true;updateHud();notify(w.purged)})}}
+function findNearby(){nearby=null;let nearest=3;for(const o of objects){if(o.userData.type==='core'&&!vaultOpen)continue;if(!o.visible)continue;const d=distance(player.group.position,o.position);if(d<nearest){nearest=d;nearby=o}}}
+function input(){let x=joystick.x,y=joystick.y;if(keys.KeyA||keys.ArrowLeft)x--;if(keys.KeyD||keys.ArrowRight)x++;if(keys.KeyW||keys.ArrowUp)y++;if(keys.KeyS||keys.ArrowDown)y--;const d=Math.hypot(x,y);if(d>1){x/=d;y/=d}return{x,y}}
+function blocked(x,z){return solid.some(c=>x>c.x1-.38&&x<c.x2+.38&&z>c.z1-.38&&z<c.z2+.38)}
+function animatePerson(p,dt,speed){p.walk+=dt*(speed>.25?7+speed*1.3:0);for(const l of p.limbs)l.pivot.rotation.x=Math.sin(p.walk+l.phase)*(l.leg?.5:.23)*Math.min(1,speed/2);p.group.position.y=Math.abs(Math.sin(p.walk*2))*.025*Math.min(1,speed/2)}
+function movePlayer(dt){const v=input(),run=keys.ShiftLeft||keys.ShiftRight||sprintTouch,speed=run?6.6:4.1,dx=(-Math.sin(camYaw)*v.y+Math.cos(camYaw)*v.x)*speed*dt,dz=(-Math.cos(camYaw)*v.y-Math.sin(camYaw)*v.x)*speed*dt,p=player.group.position,nx=clamp(p.x+dx,-26.3,26.3),nz=clamp(p.z+dz,-26.3,26.3);if(!blocked(nx,p.z))p.x=nx;if(!blocked(p.x,nz))p.z=nz;const moving=Math.hypot(v.x,v.y)>.05;if(moving)player.group.rotation.y=Math.atan2(dx,-dz);animatePerson(player,dt,moving?speed:0)}
+function updateBots(dt){const p=player.group.position;bots.forEach((b,i)=>{const tx=p.x+Math.sin(camYaw)*2.5+Math.cos(camYaw)*(i?1.5:-1.5),tz=p.z-Math.cos(camYaw)*2.5+Math.sin(camYaw)*(i?1.5:-1.5),dx=tx-b.group.position.x,dz=tz-b.group.position.z,d=Math.hypot(dx,dz);if(d>1.3){const step=Math.min(d-1.1,3*dt);b.group.position.x+=dx/d*step;b.group.position.z+=dz/d*step;b.group.rotation.y=Math.atan2(dx,dz);animatePerson(b,dt,3)}else animatePerson(b,dt,0)})}
+function updateGuards(dt){const p=player.group.position;guards.forEach(g=>{const dx=p.x-g.group.position.x,dz=p.z-g.group.position.z,d=Math.hypot(dx,dz);if(d<7.5){g.alert=Math.max(g.alert,3)}if(g.alert>0){g.alert-=dt;if(d>1.15){g.group.position.x+=dx/Math.max(d,.001)*2.6*dt;g.group.position.z+=dz/Math.max(d,.001)*2.6*dt;g.group.rotation.y=Math.atan2(dx,dz);animatePerson(g,dt,2.6)}else if(g.cooldown<=0){p.set(0,0,21);g.cooldown=4;g.alert=0;notify(tr().caught)}}else{const target=g.route[g.routeIndex],tx=target[0]-g.group.position.x,tz=target[1]-g.group.position.z,len=Math.hypot(tx,tz);if(len<.8)g.routeIndex=(g.routeIndex+1)%g.route.length;else{g.group.position.x+=tx/len*1.2*dt;g.group.position.z+=tz/len*1.2*dt;g.group.rotation.y=Math.atan2(tx,tz);animatePerson(g,dt,1.2)}}g.cooldown=Math.max(0,g.cooldown-dt)})}
+function updateCamera(dt){const p=player.group.position,dist=8.1,height=3.0+camPitch*3.1,desired=new THREE.Vector3(p.x+Math.sin(camYaw)*dist,p.y+height,p.z+Math.cos(camYaw)*dist);camera.position.lerp(desired,1-Math.exp(-7*dt));camera.lookAt(p.x,p.y+1.05,p.z);flash.position.copy(camera.position);flash.target.position.set(p.x,1,p.z-4)}
+function finish(win){if(finished)return;finished=true;started=false;$('mobile').style.display='none';const w=tr();showDialog(win?w.win:w.lose,win?w.winText:w.loseText,w.again,()=>location.reload());$('dialogClose').style.display='none'}
+function update(dt,time){if(!renderer||!scene)return;if(started&&!finished){movePlayer(dt);updateBots(dt);updateGuards(dt);findNearby();chips.forEach(c=>{if(!c.found&&distance(player.group.position,c.mesh.position)<1.15){c.found=true;c.mesh.visible=false;found++;notify(found===5?tr().all:tr().found);updateHud()}});if(phase===3){escapeTimer-=dt;$('objective').textContent=`${tr().objective[3]} ${Math.ceil(escapeTimer)}s`;if(distance(player.group.position,world.exit.position)<2.2)finish(true);else if(escapeTimer<=0)finish(false)}}chips.forEach((c,i)=>{if(!c.found){c.mesh.rotation.y+=dt*1.4;c.mesh.position.y=1.2+Math.sin(time*2+i)*.12}});if(world){world.core.rotation.y+=dt;if(world.core.visible)world.core.position.y=1.5+Math.sin(time*2)*.12;if(world.exit.visible)world.exit.material.opacity=.55+.35*Math.sin(time*5)}if(player)updateCamera(dt);renderer.render(scene,camera)}
+function startGame(){if(mode==='online'){alert(tr().onlineUnavailable);return}if(!window.THREE){alert('Three.js failed to load. Check your internet connection.');return}try{buildWorld()}catch(e){console.error(e);alert('Could not start the game: '+e.message);return}started=true;$('start').style.display='none';$('hud').style.display='flex';$('mobile').style.display='block';updateHud()}
+$('startButton').onclick=startGame;$('dialogClose').onclick=()=>$('dialog').style.display='none';$('useButton').onclick=interact;$('lightButton').onclick=()=>{if(flash)flash.visible=!flash.visible};$('sprintButton').addEventListener('pointerdown',e=>{e.preventDefault();sprintTouch=true});['pointerup','pointercancel','pointerleave'].forEach(ev=>$('sprintButton').addEventListener(ev,()=>sprintTouch=false));
+addEventListener('keydown',e=>{keys[e.code]=true;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code))e.preventDefault();if(e.code==='KeyE'||e.code==='Enter')interact();if(e.code==='KeyF'&&flash)flash.visible=!flash.visible});addEventListener('keyup',e=>keys[e.code]=false);addEventListener('blur',()=>{keys={};sprintTouch=false});
+const stick=$('stick'),knob=$('stickKnob');function updateStick(e){const dx=e.clientX-joystick.cx,dy=e.clientY-joystick.cy,max=40,len=Math.hypot(dx,dy),scale=len>max?max/len:1;joystick.x=dx*scale/max;joystick.y=-dy*scale/max;knob.style.transform=`translate(${dx*scale}px,${dy*scale}px)`}stick.addEventListener('pointerdown',e=>{e.preventDefault();stick.setPointerCapture(e.pointerId);joystick.id=e.pointerId;const r=stick.getBoundingClientRect();joystick.cx=r.left+r.width/2;joystick.cy=r.top+r.height/2;updateStick(e)});stick.addEventListener('pointermove',e=>{if(e.pointerId===joystick.id)updateStick(e)});function endStick(e){if(e.pointerId!==joystick.id)return;joystick.id=null;joystick.x=joystick.y=0;knob.style.transform=''}stick.addEventListener('pointerup',endStick);stick.addEventListener('pointercancel',endStick);
+document.addEventListener('pointerdown',e=>{if(!started||e.pointerType!=='touch'||e.target.closest('button')||e.target.closest('#stick'))return;if(e.clientX>innerWidth*.4){lookId=e.pointerId;lastLook={x:e.clientX,y:e.clientY}}});document.addEventListener('pointermove',e=>{if(e.pointerId!==lookId)return;camYaw-=(e.clientX-lastLook.x)*.008;camPitch=clamp(camPitch-(e.clientY-lastLook.y)*.004,-.05,.8);lastLook={x:e.clientX,y:e.clientY}});document.addEventListener('pointerup',e=>{if(e.pointerId===lookId)lookId=null});let mouse=false;document.addEventListener('mousedown',e=>{if(started&&!e.target.closest('button')){mouse=true;lastLook={x:e.clientX,y:e.clientY}}});document.addEventListener('mouseup',()=>mouse=false);document.addEventListener('mousemove',e=>{if(mouse&&started){camYaw-=(e.clientX-lastLook.x)*.004;camPitch=clamp(camPitch-(e.clientY-lastLook.y)*.002,-.05,.8);lastLook={x:e.clientX,y:e.clientY}}});
+addEventListener('resize',()=>{if(!renderer||!camera)return;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio||1,innerWidth<700?1.25:1.6));renderer.shadowMap.enabled=innerWidth>700});
+renderMenu();try{scene=new THREE.Scene();camera=new THREE.PerspectiveCamera(62,innerWidth/innerHeight,.1,100);renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'high-performance'});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.3));renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;$('game').appendChild(renderer.domElement);clock=new THREE.Clock();(function loop(){requestAnimationFrame(loop);update(Math.min(clock.getDelta(),.05),clock.elapsedTime)})()}catch(e){console.error(e);$('startNote').textContent='WebGL initialization failed. Try another browser.'}
 })();
 </script>
 </body>
