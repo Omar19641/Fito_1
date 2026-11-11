@@ -1,1607 +1,524 @@
-<!DOCTYPE html>
-<!-- saved from url=(0045)file:///C:/Users/omar/Desktop/game%20(1).html -->
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>The 13th Hour - Sector 13</title>
-  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="theme-color" content="#030712">
+  <title>The 13th Hour — Sector 13</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap">
   <style>
-    html,body{margin:0;height:100%;overflow:hidden;background:#030712;font-family:'Share Tech Mono',ui-monospace,monospace;user-select:none}
-    .scan{background:linear-gradient(rgba(18,16,16,0) 50%,rgba(0,0,0,.12) 50%);background-size:100% 4px;pointer-events:none}
-    .vig{background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.55) 100%);pointer-events:none}
-    #cross{position:absolute;top:50%;left:50%;width:5px;height:5px;margin:-3px;border-radius:50%;background:rgba(255,255,255,.8)}
+    *{box-sizing:border-box}
+    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#030712;color:#cffafe;font-family:"Share Tech Mono",monospace;user-select:none;-webkit-user-select:none;touch-action:none}
+    button{font:inherit;cursor:pointer;touch-action:manipulation}
+    #game,#game canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+    #hud{position:absolute;inset:0;z-index:2;display:none;pointer-events:none;padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));flex-direction:column;justify-content:space-between}
+    .row{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+    .panel{background:#020617dc;border:1px solid #155e75aa;border-radius:11px;padding:9px 12px;box-shadow:0 6px 22px #0007}
+    .muted{font-size:12px;color:#94a3b8}
+    #objective{font-size:13px;color:#34d399;margin-top:3px}
+    #banner{align-self:center;display:none;background:#450a0add;border:1px solid #ef4444;border-radius:8px;padding:9px 14px;text-align:center;max-width:90vw}
+    #start{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;overflow:auto;padding:14px;background:radial-gradient(ellipse at 50% 20%,#082f49,#020617 70%)}
+    .card{width:min(700px,100%);max-height:100%;overflow:auto;background:#0f172aef;border:1px solid #0891b2aa;border-radius:18px;padding:clamp(17px,4vw,32px);text-align:center;box-shadow:0 24px 80px #0009}
+    h1{font-size:clamp(30px,7vw,52px);letter-spacing:.08em;color:#22d3ee;margin:0 0 4px}
+    .subtitle{color:#34d399;margin:0 0 14px}
+    .intro{background:#020617aa;border:1px solid #1e293b;border-radius:11px;padding:13px;text-align:start;line-height:1.55;color:#cbd5e1;margin:12px 0}
+    .label{font-size:12px;color:#94a3b8}
+    .choices{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:8px 0 13px}
+    .choice{border:1px solid #334155;background:#020617;border-radius:9px;padding:10px 13px;min-height:42px;color:#cffafe}
+    .choice.selected{border-color:#22d3ee;color:#22d3ee;box-shadow:0 0 14px #06b6d433}
+    .primary{background:#06b6d4;color:#020617;border:0;border-radius:10px;padding:13px 22px;font-weight:bold;font-size:17px;margin-top:10px}
+    .primary:hover{background:#67e8f9}
+    .note{font-size:12px;color:#94a3b8;line-height:1.5;margin:10px auto 0;max-width:580px}
+    #mobile{position:absolute;inset:0;z-index:3;display:none;pointer-events:none}
+    #stick{position:absolute;left:14px;bottom:max(18px,env(safe-area-inset-bottom));width:142px;height:142px;pointer-events:auto;touch-action:none}
+    #stickBase,#stickKnob{position:absolute;border-radius:50%;border:2px solid #67e8f966}
+    #stickBase{inset:0;background:#0e749066}
+    #stickKnob{width:58px;height:58px;left:40px;top:40px;background:#22d3ee99}
+    #actions{position:absolute;right:13px;bottom:max(17px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;pointer-events:auto}
+    .action{width:57px;height:57px;border-radius:50%;border:1px solid #67e8f9;background:#082f49e8;color:#ecfeff;font-size:11px;font-weight:bold}
+    .action.main{background:#06b6d4;color:#020617}
+    #lookHint{position:absolute;right:81px;bottom:30px;font-size:10px;color:#bae6fd88}
+    #dialog{position:absolute;inset:0;z-index:4;display:none;align-items:center;justify-content:center;padding:18px;background:#020617cc}
+    .dialogBox{width:min(420px,100%);background:#0f172a;border:1px solid #22d3ee;border-radius:14px;padding:21px;text-align:center}
+    .dialogBox h2{color:#22d3ee;margin:0 0 12px}
+    .rtl{direction:rtl}
+    .rtl .row{direction:rtl}
+    .rtl .intro{text-align:right}
+    @media(max-height:520px){#stick{width:105px;height:105px}#stickKnob{width:48px;height:48px;left:27px;top:27px}.action{width:47px;height:47px}}
   </style>
 </head>
-<body class="relative text-cyan-400">
-  <div id="cv" class="absolute inset-0"></div>
-  <div class="scan absolute inset-0 z-10"></div>
-  <div class="vig absolute inset-0 z-10"></div>
+<body>
+  <div id="game"></div>
 
-  <div class="absolute inset-0 z-20 pointer-events-none flex flex-col justify-between p-5">
-    <div id="cross"></div>
-
-    <div class="bg-slate-950/80 p-3 border border-cyan-500/30 rounded-lg max-w-xl flex justify-between gap-6">
-      <div>
-        <div id="loc" class="text-sm font-bold text-cyan-400">SECTOR 13</div>
-        <div id="st" class="text-xs text-slate-400"></div>
-      </div>
-      <div class="text-right">
-        <div class="text-xs text-slate-400">OBJECTIVE</div>
-        <div id="obj" class="text-xs font-semibold text-emerald-400">Investigate the vault wing</div>
-      </div>
+  <div id="hud">
+    <div class="row">
+      <div class="panel"><div id="location">SECTOR 13</div><div id="stats" class="muted"></div></div>
+      <div class="panel" style="text-align:end"><div id="objectiveLabel" class="muted">OBJECTIVE</div><div id="objective"></div></div>
     </div>
-
-    <div id="ban" class="hidden self-center bg-red-950/90 border-2 border-red-500 text-red-200 px-5 py-2 rounded text-sm animate-pulse text-center"></div>
-
-    <div id="jail" class="hidden self-center bg-orange-950/90 border-2 border-orange-400 text-orange-200 px-6 py-4 rounded-lg text-center">
-      <div class="text-xl font-black">ARRESTED</div>
-      <div id="jt" class="text-sm"></div>
-    </div>
-
-    <div id="prompt" class="self-center hidden">
-      <div class="bg-cyan-950/90 border-2 border-cyan-400 text-cyan-200 px-5 py-2 rounded-md flex items-center gap-3">
-        <span class="bg-cyan-500 text-slate-950 px-2 py-0.5 rounded font-bold">E</span>
-        <span id="ptxt" class="text-sm uppercase"></span>
-      </div>
-    </div>
-
-    <div class="flex justify-between items-end gap-3 flex-wrap">
-      <div class="bg-slate-950/80 border border-slate-700/50 p-3 rounded-lg flex gap-3 text-xs">
-        <span class="text-slate-400">TEAM KEY:</span>
-        <span id="inv" class="text-slate-600 italic">none</span>
-      </div>
-      <div class="bg-slate-950/80 border border-slate-700/50 p-3 rounded-lg text-xs text-slate-400">
-        [WASD] Move | [SHIFT] Sprint | [E] Interact | [Q] Takedown | [F] Light
-      </div>
+    <div id="banner"></div>
+    <div class="row">
+      <div id="inventory" class="panel muted"></div>
+      <div id="help" class="panel muted">WASD • SHIFT • E • F</div>
     </div>
   </div>
 
-  <div id="start" class="absolute inset-0 z-50 bg-slate-950/95 flex items-center justify-center p-4 text-center overflow-y-auto">
-    <div class="max-w-3xl border border-cyan-500/40 p-6 rounded-xl bg-slate-900/60">
-      <h1 class="text-4xl font-black tracking-widest text-cyan-400 mb-1">THE 13TH HOUR</h1>
-      <p class="text-emerald-400 font-bold mb-3">SECTOR 13 // CO-OP INFILTRATION</p>
-      <div class="text-left text-sm text-slate-300 space-y-2 mb-3 bg-slate-950/60 p-4 border border-slate-800 rounded">
-        <p><strong class="text-cyan-400">STORY:</strong> Dr. Vance is trapped inside the vault core. A masked courier is cracking the door, and guards are on the way.</p>
-        <p><strong class="text-emerald-400">RUN:</strong> Collect 5 data chips, decrypt the key, open the vault, purge the virus, then escape before reinforcements arrive.</p>
-        <p><strong class="text-amber-400">DANGER:</strong> Guards see you and hunt you down. Caught = jailed until a friend frees you (E). Takedowns (Q) get reported: guards investigate, heat rises, police arrive.</p>
-        <p><strong class="text-fuchsia-400">FRIENDS:</strong> Everyone opens this page, picks the SAME map, and plays together (friends need Contributor access).</p>
-      </div>
-      <div id="maps" class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4"></div>
-      <button id="go" class="px-8 py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-lg rounded-lg">ENTER THE BUILDING</button>
+  <div id="mobile">
+    <div id="stick"><div id="stickBase"></div><div id="stickKnob"></div></div>
+    <div id="lookHint"></div>
+    <div id="actions">
+      <button class="action" id="lightButton"></button>
+      <button class="action" id="sprintButton"></button>
+      <button class="action main" id="useButton"></button>
     </div>
   </div>
 
-  <div id="ov" class="hidden absolute inset-0 z-40 bg-slate-950/90">
-    <div class="h-full flex items-center justify-center p-4">
-      <div class="w-full max-w-3xl bg-slate-900 border-2 border-cyan-500/80 rounded-xl flex flex-col overflow-hidden max-h-[85vh]">
-        <div class="bg-slate-950 border-b border-cyan-500/40 p-4 flex justify-between">
-          <span id="tt" class="font-bold text-cyan-400 text-sm"></span>
-          <button id="cl" class="text-slate-400 hover:text-cyan-400 text-xl font-bold px-2">&times;</button>
-        </div>
-        <div id="tb" class="p-6 overflow-y-auto space-y-4 text-sm flex-1"></div>
-        <div class="bg-slate-950 border-t border-cyan-500/40 p-4 flex justify-end">
-          <div id="ta" class="flex gap-2"></div>
-        </div>
-      </div>
+  <div id="dialog">
+    <div class="dialogBox">
+      <h2 id="dialogTitle"></h2>
+      <div id="dialogText"></div>
+      <button id="dialogAction" class="primary"></button>
+      <br><button id="dialogClose" class="choice"></button>
     </div>
   </div>
 
-  <script>
-    const $ = id => document.getElementById(id);
+  <div id="start">
+    <section class="card">
+      <h1>THE 13TH HOUR</h1>
+      <p class="subtitle">SECTOR 13 // INFILTRATION</p>
 
-    /* ---------- AUDIO ---------- */
-    const A = {
-      c: null,
-      nb: null,
-      init() {
-        if (this.c) return;
-        const c = this.c = new (window.AudioContext || window.webkitAudioContext)();
+      <div class="label" id="languageLabel">LANGUAGE</div>
+      <div class="choices">
+        <button class="choice selected" id="english">English</button>
+        <button class="choice" id="arabic">العربية</button>
+      </div>
 
-        [[48,'sawtooth',.01],[96.5,'sine',.018]].forEach(([f,t,v]) => {
-          const o = c.createOscillator();
-          const g = c.createGain();
-          const l = c.createBiquadFilter();
-          o.type = t;
-          o.frequency.value = f;
-          g.gain.value = v;
-          l.frequency.value = 200;
-          o.connect(l);
-          l.connect(g);
-          g.connect(c.destination);
-          o.start();
-        });
+      <div id="intro" class="intro"></div>
 
-        const n = c.sampleRate * .12;
-        const b = c.createBuffer(1, n, c.sampleRate);
-        const d = b.getChannelData(0);
-        for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 3);
-        this.nb = b;
-      },
-      b(f = 800, d = .1, t = 'sine', v = .12, at = 0) {
-        const c = this.c;
-        if (!c) return;
-        const o = c.createOscillator();
-        const g = c.createGain();
-        const s = c.currentTime + at;
-        o.type = t;
-        o.frequency.value = f;
-        g.gain.setValueAtTime(v, s);
-        g.gain.exponentialRampToValueAtTime(.001, s + d);
-        o.connect(g);
-        g.connect(c.destination);
-        o.start(s);
-        o.stop(s + d);
-      },
-      key() { [523, 659, 784].forEach((f, i) => this.b(f, .1, 'sine', .12, i * .08)); },
-      no() { this.b(180, .15, 'sawtooth'); this.b(140, .2, 'sawtooth', .12, .15); },
-      ok() { this.b(440, .1); this.b(880, .25, 'sine', .12, .1); },
-      door() { this.b(60, 2.6, 'sawtooth', .1); },
-      alarm() { for (let i = 0; i < 6; i++) this.b(i % 2 ? 700 : 950, .18, 'square', .07, i * .24); },
-      hit() { this.b(120, .2, 'square', .15); },
-      step() {
-        const c = this.c;
-        if (!c || !this.nb) return;
-        const s = c.createBufferSource();
-        const f = c.createBiquadFilter();
-        const g = c.createGain();
-        s.buffer = this.nb;
-        f.type = 'lowpass';
-        f.frequency.value = 350 + Math.random() * 150;
-        g.gain.value = .45;
-        s.connect(f);
-        f.connect(g);
-        g.connect(c.destination);
-        s.start();
-      }
-    };
+      <div class="label" id="mapLabel"></div>
+      <div id="maps" class="choices"></div>
 
-    /* ---------- MAPS ---------- */
-    const TH = [
-      {n:'Cyber Core',d:'3x3 server halls, cold neon',bg:0x020617,fog:.028,wall:'#14213a',floor:'#0b1220',lc:0x38bdf8,li:1.6,amb:.4,acc:'#22d3ee',ex:1.15,prop:0x1e293b,fl:0,xs:[-27,-9,9,27],zs:[-27,-9,9,27]},
-      {n:'Abandoned Hospital',d:'Narrow wards, flickering lights',bg:0x07100c,fog:.034,wall:'#8fa89a',floor:'#5d6f66',lc:0xd9f99d,li:1.5,amb:.3,acc:'#a3e635',ex:1.2,prop:0x64748b,fl:1,xs:[-27,-6,6,27],zs:[-27,-15,-3,9,27]},
-      {n:'Corporate Tower',d:'Open-plan offices, warm light',bg:0x0b1220,fog:.012,wall:'#cbd5e1',floor:'#475569',lc:0xfff1d6,li:1.8,amb:.55,acc:'#fbbf24',ex:1.05,prop:0x78716c,fl:0,xs:[-27,0,27],zs:[-27,-13.5,0,13.5,27]},
-      {n:'Deep Bunker',d:'Long concrete tunnels, dim lamps',bg:0x0c0a09,fog:.045,wall:'#57534e',floor:'#292524',lc:0xfb923c,li:1.5,amb:.22,acc:'#f97316',ex:1.25,prop:0x44403c,fl:.5,xs:[-27,-13.5,0,13.5,27],zs:[-27,0,27]},
-      {n:'Red Alert Station',d:'Uneven rooms, pulsing alarms',bg:0x120505,fog:.034,wall:'#3a1d1d',floor:'#1c1010',lc:0xef4444,li:1.7,amb:.3,acc:'#ef4444',ex:1.2,prop:0x44403c,fl:0,pulse:1,xs:[-27,-15,3,27],zs:[-27,-3,15,27]}
-    ];
-    let sel = 0;
-    const mp = $('maps');
-    TH.forEach((t, i) => {
-      const b = document.createElement('button');
-      b.className = 'text-left p-3 rounded-lg border-2 bg-slate-950/70 hover:bg-slate-800';
-      b.innerHTML = `<div class="font-bold" style="color:${t.acc}">${i + 1}. ${t.n}</div><div class="text-xs text-slate-400">${t.d}</div>`;
-      b.onclick = () => {
-        sel = i;
-        [...mp.children].forEach((c, j) => c.style.borderColor = j === i ? TH[i].acc : '#334155');
-      };
-      mp.appendChild(b);
+      <div class="label" id="modeLabel"></div>
+      <div class="choices">
+        <button class="choice selected" id="botsMode"></button>
+        <button class="choice" id="onlineMode"></button>
+      </div>
+      <div class="note" id="modeNote"></div>
+      <button class="primary" id="startButton"></button>
+      <div class="note" id="startNote"></div>
+    </section>
+  </div>
+
+<script>
+(() => {
+  "use strict";
+  const $ = id => document.getElementById(id);
+
+  const words = {
+    en: {
+      language:"LANGUAGE", map:"SELECT A SECTOR", mode:"PLAY STYLE",
+      story:"Dr. Vance is trapped in the vault. Find five data chips, decrypt the key, open the vault, purge the virus, then escape.",
+      controls:"Phone: use the left joystick to move, drag the right side to look, and tap the action buttons. Computer: WASD/arrows, mouse drag, Shift to sprint, E to interact, F for light.",
+      bots:"Play with bots", online:"Friends / online",
+      botNote:"Play now with two AI teammates. This mode works without a multiplayer server.",
+      onlineNote:"Online play is not connected yet. GitHub Pages hosts static files but does not connect players; a multiplayer server/signaling service will be needed later.",
+      start:"ENTER THE BUILDING", startNote:"Third-person camera • Mobile controls • No account required",
+      objective:"Collect 5 data chips", chips:(n)=>`CHIPS ${n}/5`, key:(v)=>`TEAM KEY: ${v?"VAULT KEY ALPHA":"NONE"}`,
+      use:"USE", run:"RUN", light:"LIGHT", look:"DRAG TO LOOK",
+      found:"Data chip collected.", all:"All chips found. Use the key dispenser.",
+      need:"Find all five chips first.", dispenser:"KEY DISPENSER",
+      dispenserText:"Decrypt the vault key using all five data chips?", decrypt:"DECRYPT KEY",
+      keyReady:"Key decrypted. Go to the vault door.", door:"VAULT DOOR",
+      doorText:"Use the team key to open the vault?", open:"OPEN VAULT",
+      blocked:"This door needs the team key.", opened:"Vault opening…",
+      core:"NEURAL CORE", coreText:"Purge the virus and start the escape timer?", purge:"PURGE VIRUS",
+      escape:"Purge complete! Escape to the green exit!", purged:"Virus purged. Move to the green exit!",
+      spotted:"A guard spotted you!", caught:"Captured! You were moved back to the entrance.",
+      win:"MISSION COMPLETE", lose:"REINFORCEMENTS ARRIVED",
+      winText:"The team escaped. Dr. Vance is safe.", loseText:"The escape timer ran out. Try again.",
+      again:"PLAY AGAIN", close:"CLOSE", onlineUnavailable:"Online multiplayer is not ready yet. Choose Play with bots."
+    },
+    ar: {
+      language:"اللغة", map:"اختر القطاع", mode:"طريقة اللعب",
+      story:"الدكتور فانس عالق داخل الخزنة. اجمع خمس شرائح بيانات، فك المفتاح، افتح الخزنة، أزل الفيروس ثم اهرب.",
+      controls:"الهاتف: حرّك بالعصا يسارًا، واسحب يمين الشاشة للنظر، واستخدم الأزرار. الكمبيوتر: WASD أو الأسهم، اسحب الفأرة للنظر، Shift للركض، E للتفاعل، F للمصباح.",
+      bots:"اللعب مع بوتات", online:"الأصدقاء / أونلاين",
+      botNote:"العب الآن مع زميلين من البوتات. هذا الوضع لا يحتاج إلى خادم لعب جماعي.",
+      onlineNote:"اللعب عبر الإنترنت غير متصل حاليًا. GitHub Pages يستضيف الملفات فقط ولا يربط اللاعبين؛ سنحتاج لاحقًا إلى خادم أو خدمة اتصال.",
+      start:"ادخل المبنى", startNote:"منظور خلف الشخصية • تحكم للهاتف • لا يحتاج حسابًا",
+      objective:"اجمع ٥ شرائح بيانات", chips:n=>`الشرائح ${n}/5`, key:v=>`مفتاح الفريق: ${v?"مفتاح الخزنة ألفا":"لا يوجد"}`,
+      use:"تفاعل", run:"ركض", light:"ضوء", look:"اسحب للنظر",
+      found:"تم جمع شريحة بيانات.", all:"اكتملت الشرائح. استخدم موزّع المفاتيح.",
+      need:"اجمع الشرائح الخمس أولًا.", dispenser:"موزّع المفاتيح",
+      dispenserText:"هل تريد فك مفتاح الخزنة باستخدام الشرائح الخمس؟", decrypt:"فك المفتاح",
+      keyReady:"تم فك المفتاح. اذهب إلى باب الخزنة.", door:"باب الخزنة",
+      doorText:"هل تستخدم مفتاح الفريق لفتح الخزنة؟", open:"افتح الخزنة",
+      blocked:"هذا الباب يحتاج إلى مفتاح الفريق.", opened:"الخزنة تُفتح…",
+      core:"النواة العصبية", coreText:"هل تزيل الفيروس وتبدأ مؤقت الهرب؟", purge:"إزالة الفيروس",
+      escape:"تم التطهير! اهرب إلى المخرج الأخضر!", purged:"تمت إزالة الفيروس. اتجه إلى المخرج الأخضر!",
+      spotted:"أحد الحراس رآك!", caught:"تم القبض عليك وأُعيدت إلى المدخل.",
+      win:"اكتملت المهمة", lose:"وصلت التعزيزات",
+      winText:"نجح الفريق في الهرب. الدكتور فانس بأمان.", loseText:"انتهى وقت الهرب. حاول مرة أخرى.",
+      again:"العب مرة أخرى", close:"إغلاق", onlineUnavailable:"اللعب عبر الإنترنت غير جاهز. اختر اللعب مع البوتات."
+    }
+  };
+
+  const sectors = [
+    {name:["Cyber Core","النواة السيبرانية"],bg:0x020617,wall:0x14213a,floor:0x0b1220,glow:0x22d3ee},
+    {name:["Abandoned Hospital","المستشفى المهجور"],bg:0x07100c,wall:0x50665a,floor:0x293a32,glow:0xa3e635},
+    {name:["Corporate Tower","برج الشركات"],bg:0x0b1220,wall:0x64748b,floor:0x263244,glow:0xfbbf24}
+  ];
+  let language="en",selectedSector=0,playMode="bots";
+  const t=()=>words[language];
+
+  function renderMenu(){
+    const w=t();
+    document.documentElement.lang=language;
+    document.body.classList.toggle("rtl",language==="ar");
+    $("english").classList.toggle("selected",language==="en");
+    $("arabic").classList.toggle("selected",language==="ar");
+    $("languageLabel").textContent=w.language;
+    $("intro").innerHTML=`<b style="color:#22d3ee">${language==="ar"?"القصة":"STORY"}:</b> ${w.story}<br><br><b style="color:#a5f3fc">${language==="ar"?"التحكم":"CONTROLS"}:</b> ${w.controls}`;
+    $("mapLabel").textContent=w.map;
+    $("modeLabel").textContent=w.mode;
+    $("botsMode").textContent=w.bots;
+    $("onlineMode").textContent=w.online;
+    $("botsMode").classList.toggle("selected",playMode==="bots");
+    $("onlineMode").classList.toggle("selected",playMode==="online");
+    $("modeNote").textContent=playMode==="bots"?w.botNote:w.onlineNote;
+    $("startButton").textContent=w.start;
+    $("startNote").textContent=w.startNote;
+    $("maps").replaceChildren();
+    sectors.forEach((s,i)=>{
+      const b=document.createElement("button");
+      b.className="choice"+(i===selectedSector?" selected":"");
+      b.textContent=s.name[language==="ar"?1:0];
+      b.onclick=()=>{selectedSector=i;renderMenu()};
+      $("maps").appendChild(b);
     });
-    mp.children[0].click();
+  }
 
-    /* ---------- STATE ---------- */
-    const S = { n: 0, key: false };
-    let vaultUnlocked = false, done = false, active = false, modal = false, locked = false, dragging = false, current = null, phase = 0, alarmed = false, gt = 0, heat = 0, esc = 0, jailed = 0, jt = 0;
-    let room = null, isHost = true, myPeer = null, peersL = [];
-    const av = {};
-    const safeRoomEmit = (event, payload) => {
-      if (!room || !room.emit) return;
-      room.emit(event, payload).catch(() => {});
-    };
+  $("english").onclick=()=>{language="en";renderMenu()};
+  $("arabic").onclick=()=>{language="ar";renderMenu()};
+  $("botsMode").onclick=()=>{playMode="bots";renderMenu()};
+  $("onlineMode").onclick=()=>{playMode="online";renderMenu()};
 
-    const BTN = c => `px-4 py-2 rounded font-bold text-slate-950 ${c}`;
-    const refresh = id => $('tb').innerHTML = N[id].html();
+  let scene,camera,renderer,clock,player,flash,started=false,finished=false;
+  let chips=[],bots=[],guards=[],interactables=[],door,core,exitMark,terminal;
+  let keyFound=false,vaultOpen=false,phase=0,escapeTime=0,camYaw=0,camPitch=.22,nearby=null;
+  let joystick={id:null,x:0,y:0,cx:0,cy:0},keys={},sprintTouch=false,lookPointer=null;
+  const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+  const dist=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
+  const solid=[];
 
-    const msg = m => {
-      const b = $('tb');
-      const d = document.createElement('div');
-      d.className = 'mt-4 p-3 bg-cyan-950 border border-cyan-400 text-cyan-200 rounded text-xs font-bold animate-pulse';
-      d.textContent = '>> ' + m;
-      b.appendChild(d);
-      b.scrollTop = b.scrollHeight;
-    };
+  function material(color,roughness=.8,metalness=0){return new THREE.MeshStandardMaterial({color,roughness,metalness})}
+  function addBox(w,h,d,x,y,z,mat,collide=true){
+    const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);
+    m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;scene.add(m);
+    if(collide)solid.push({x1:x-w/2,x2:x+w/2,z1:z-d/2,z2:z+d/2});
+    return m;
+  }
 
-    const setObj = t => $('obj').textContent = t;
-    const ban = m => {
-      const b = $('ban');
-      b.textContent = m;
-      b.classList.remove('hidden');
-      clearTimeout(ban.t);
-      ban.t = setTimeout(() => b.classList.add('hidden'), 6000);
-    };
+  function makePerson(shirt,skin=0xf2c291,isGuard=false){
+    const group=new THREE.Group(),clothes=material(shirt),skinMat=material(skin),pants=material(isGuard?0x111827:0x263244),limbs=[];
+    const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.28,.42,4,8),clothes);torso.position.y=1.08;torso.castShadow=true;group.add(torso);
+    const head=new THREE.Mesh(new THREE.SphereGeometry(.22,12,10),skinMat);head.position.y=1.73;head.castShadow=true;group.add(head);
+    const hair=new THREE.Mesh(new THREE.SphereGeometry(.225,10,8,0,Math.PI*2,0,Math.PI*.52),material(isGuard?0x111827:0x29211e));hair.position.y=1.79;group.add(hair);
+    for(const side of [-1,1]){
+      const leg=new THREE.Mesh(new THREE.CapsuleGeometry(.095,.38,3,6),pants);leg.position.set(side*.12,.48,0);leg.castShadow=true;group.add(leg);limbs.push({mesh:leg,phase:side*Math.PI,isLeg:true});
+      const arm=new THREE.Mesh(new THREE.CapsuleGeometry(.07,.34,3,6),clothes);arm.position.set(side*.36,1.08,0);arm.castShadow=true;group.add(arm);limbs.push({mesh:arm,phase:-side*Math.PI,isLeg:false});
+    }
+    if(isGuard){const badge=new THREE.Mesh(new THREE.BoxGeometry(.14,.12,.04),new THREE.MeshBasicMaterial({color:0xfbbf24}));badge.position.set(0,1.16,.27);group.add(badge)}
+    return {group,limbs,walk:Math.random()*6,guard:isGuard};
+  }
 
-    const HUD = () => {
-      $('st').textContent = `CHIPS ${S.n}/5  HEAT ${'★'.repeat(heat) + '☆'.repeat(3 - heat)}  PLAYERS ${Math.max(1, peersL.filter(p => p.kind === 'viewer').length)}${esc ? '  ESCAPE ' + Math.ceil(esc) + 's' : ''}`;
-    };
+  function makeTerminal(x,z,type,color){
+    const g=new THREE.Group();
+    const base=new THREE.Mesh(new THREE.CylinderGeometry(.42,.52,1.15,8),material(0x1e293b,.4,.6));base.position.y=.57;base.castShadow=true;g.add(base);
+    const screen=new THREE.Mesh(new THREE.BoxGeometry(.85,.55,.09),new THREE.MeshBasicMaterial({color}));screen.position.set(0,1.28,.05);g.add(screen);
+    g.position.set(x,0,z);g.userData={type};scene.add(g);interactables.push(g);return g;
+  }
 
-    const renderInv = () => {
-      $('inv').textContent = S.key ? 'VAULT KEY ALPHA' : 'none';
-      $('inv').className = S.key ? 'text-emerald-300 font-bold' : 'text-slate-600 italic';
-    };
+  function buildWorld(){
+    const sector=sectors[selectedSector];
+    scene=new THREE.Scene();
+    scene.background=new THREE.Color(sector.bg);
+    scene.fog=new THREE.FogExp2(sector.bg,.014);
+    scene.add(new THREE.HemisphereLight(0xc5efff,0x101827,1.4));
+    const sun=new THREE.DirectionalLight(0xffffff,1.15);sun.position.set(10,22,12);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);scene.add(sun);
 
-    function ev(o) {
-      handleEv(o);
-      if (room) safeRoomEmit('ev', o);
+    const floor=new THREE.Mesh(new THREE.PlaneGeometry(58,58),material(sector.floor,.9,.15));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;scene.add(floor);
+    const wall=material(sector.wall);
+    addBox(56,4.2,.7,0,2,-28,wall);addBox(56,4.2,.7,0,2,28,wall);
+    addBox(.7,4.2,56,-28,2,0,wall);addBox(.7,4.2,56,28,2,0,wall);
+
+    // Low walls create multiple routes while leaving the center open.
+    for(const z of [-14,0,14]){
+      if(z===0)continue;
+      addBox(17,3.8,.4,-19,1.9,z,wall);addBox(17,3.8,.4,19,1.9,z,wall);
+    }
+    const glow=new THREE.MeshBasicMaterial({color:sector.glow});
+    for(let x=-18;x<=18;x+=12){const strip=new THREE.Mesh(new THREE.BoxGeometry(.07,.025,52),glow);strip.position.set(x,.025,0);scene.add(strip)}
+    for(let i=0;i<8;i++){
+      const x=-20+(i%4)*13,z=-19+Math.floor(i/4)*38;
+      addBox(1.3,1.1,1.3,x,.55,z,material(i%2?0x334155:0x1e293b));
     }
 
-    function handleEv(d) {
-      switch (d.t) {
-        case 'chip': {
-          const c = chips[d.i];
-          if (c && !c.got) {
-            c.got = 1;
-            c.m.visible = false;
-            S.n++;
-            A.key();
-            HUD();
-            if (S.n === 5) setObj('All chips found: decrypt the key at the dispenser');
-          }
-          break;
-        }
-        case 'key':
-          if (!S.key) {
-            S.key = true;
-            A.key();
-            renderInv();
-            setObj('Open the vault door (north)');
-          }
-          break;
-        case 'vault':
-          if (!vaultUnlocked) {
-            vaultUnlocked = true;
-            vaultTarget = 1;
-            A.door();
-            setObj('Contact the neural core inside');
-          }
-          break;
-        case 'kill': killNpc(d.i); break;
-        case 'heat':
-          heat = Math.max(heat, d.h);
-          HUD();
-          if (heat >= 2 && isHost) wake();
-          break;
-        case 'rep':
-          ban('DISPATCH: BODY REPORTED - GUARDS INVESTIGATING');
-          A.alarm();
-          if (isHost) dispatch(d.x, d.z);
-          break;
-        case 'jail':
-          if (d.p === myPeer) jail();
-          break;
-        case 'free':
-          if (d.p === myPeer) release();
-          break;
-        case 'phase':
-          phase = Math.max(phase, d.n);
-          if (d.n === 2) {
-            runner.face = [vx, V + .8];
-            setObj('Collect 5 data chips around the building');
-          }
-          break;
-        case 'esc':
-          if (!esc) {
-            esc = 85;
-            phase = 3;
-            A.alarm();
-            ban('PURGE DONE - ESCAPE TO THE EXIT BEFORE REINFORCEMENTS!');
-            setObj('REACH THE GREEN EXIT');
-          }
-          break;
-        case 'win':
-          end(true);
-          break;
-        case 'sync':
-          d.c.forEach(i => handleEv({ t: 'chip', i }));
-          if (d.k) handleEv({ t: 'key' });
-          if (d.v) handleEv({ t: 'vault' });
-          phase = Math.max(phase, d.ph);
-          heat = Math.max(heat, d.h);
-          if (d.e && !esc) handleEv({ t: 'esc' });
-          break;
+    player=makePerson(0x2563eb,0xf2c291);player.group.position.set(0,0,21);scene.add(player.group);
+    bots=[];
+    for(let i=0;i<2;i++){const bot=makePerson(i?0x8b5cf6:0x10b981,i?0xd97706:0xfcd34d);bot.group.position.set(i?2:-2,0,18+i);bot.offset=i?2:-2;bot.bot=true;scene.add(bot.group);bots.push(bot)}
+
+    guards=[];
+    for(let i=0;i<3;i++){
+      const guard=makePerson(0x334155,i%2?0xd97706:0xfcd34d,true);
+      guard.group.position.set(-18+i*18,0,i%2?-17:17);
+      guard.route=[[-19+i*18,-17],[-19+i*18,17],[19-i*10,17],[19-i*10,-17]];
+      guard.routeIndex=0;guard.alert=0;guard.cooldown=0;scene.add(guard.group);guards.push(guard);
+    }
+
+    chips=[];
+    const spots=[[-21,18],[21,12],[-20,-15],[20,-17],[0,-19]];
+    spots.forEach(([x,z])=>{
+      const mesh=new THREE.Mesh(new THREE.OctahedronGeometry(.36),new THREE.MeshStandardMaterial({color:sector.glow,emissive:sector.glow,emissiveIntensity:1.3,metalness:.3,roughness:.3}));
+      mesh.position.set(x,1.2,z);mesh.castShadow=true;scene.add(mesh);
+      const light=new THREE.PointLight(sector.glow,.55,4);mesh.add(light);chips.push({mesh,found:false});
+    });
+
+    terminal=makeTerminal(-2,3,"terminal",0x34d399);
+    door=makeTerminal(0,-23,"door",0x22d3ee);
+    core=new THREE.Mesh(new THREE.IcosahedronGeometry(.65,1),new THREE.MeshStandardMaterial({color:0x34d399,wireframe:true,emissive:0x10b981,emissiveIntensity:1.4}));
+    core.position.set(0,1.5,-25);core.visible=false;core.userData={type:"core"};scene.add(core);interactables.push(core);
+    exitMark=new THREE.Mesh(new THREE.CylinderGeometry(1.7,1.7,.1,28),new THREE.MeshBasicMaterial({color:0x22c55e,transparent:true,opacity:.8}));
+    exitMark.position.set(0,.08,24);exitMark.visible=false;scene.add(exitMark);
+
+    camera=new THREE.PerspectiveCamera(62,innerWidth/innerHeight,.1,100);
+    renderer=new THREE.WebGLRenderer({antialias:innerWidth>700,powerPreference:"high-performance"});
+    renderer.setPixelRatio(Math.min(devicePixelRatio||1,innerWidth<700?1.25:1.6));renderer.setSize(innerWidth,innerHeight);
+    renderer.shadowMap.enabled=innerWidth>700;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+    renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;
+    $("game").replaceChildren(renderer.domElement);
+    flash=new THREE.SpotLight(0xfff1d6,1.7,19,.55,.5,1);flash.castShadow=false;scene.add(flash,flash.target);
+    clock=new THREE.Clock();updateHud();
+  }
+
+  function updateHud(){
+    const found=chips.filter(c=>c.found).length;
+    $("location").textContent=(language==="ar"?"القطاع ١٣ // ":"SECTOR 13 // ")+sectors[selectedSector].name[language==="ar"?1:0].toUpperCase();
+    $("stats").textContent=t().chips(found);
+    $("inventory").textContent=t().key(keyFound);
+    $("objectiveLabel").textContent=language==="ar"?"المهمة":"OBJECTIVE";
+    $("objective").textContent=phase===0?t().objective:phase===1?t().keyReady:phase===2?t().vaultOpen:t().escape;
+    $("help").textContent=language==="ar"?"عصا الحركة • اسحب للنظر • ركض • تفاعل":"MOVE • DRAG LOOK • RUN • USE";
+    $("useButton").textContent=t().use;$("sprintButton").textContent=t().run;$("lightButton").textContent=t().light;$("lookHint").textContent=t().look;
+  }
+
+  let bannerTimeout;
+  function notify(s){$("banner").textContent=s;$("banner").style.display="block";clearTimeout(bannerTimeout);bannerTimeout=setTimeout(()=>$("banner").style.display="none",2200)}
+  function showDialog(title,message,action,callback){
+    $("dialogTitle").textContent=title;$("dialogText").textContent=message;
+    $("dialogAction").textContent=action;$("dialogClose").textContent=t().close;
+    $("dialogAction").onclick=()=>{callback();$("dialog").style.display="none"};
+    $("dialog").style.display="flex";
+  }
+
+  function interact(){
+    if(!started||finished)return;
+    if(!nearby)return;
+    const type=nearby.userData.type;
+    if(type==="terminal"){
+      if(chips.every(c=>c.found)){
+        showDialog(t().dispenser,t().dispenserText,t().decrypt,()=>{keyFound=true;phase=1;updateHud();notify(t().keyReady)});
+      }else notify(t().need);
+    }else if(type==="door"){
+      if(!keyFound){notify(t().blocked);return}
+      showDialog(t().door,t().doorText,t().open,()=>{vaultOpen=true;phase=2;door.visible=false;core.visible=true;updateHud();notify(t().opened)});
+    }else if(type==="core"&&vaultOpen){
+      showDialog(t().core,t().coreText,t().purge,()=>{phase=3;escapeTime=90;exitMark.visible=true;updateHud();notify(t().purged)});
+    }
+  }
+
+  function findNearby(){
+    nearby=null;let best=3;
+    for(const o of interactables){
+      if(o.userData.type==="core"&&!vaultOpen)continue;
+      const d=dist(player.group.position,o.position);
+      if(d<best){best=d;nearby=o}
+    }
+    $("useButton").style.opacity=nearby?"1":".62";
+  }
+
+  function getInput(){
+    let x=joystick.x,y=joystick.y;
+    if(keys.KeyA||keys.ArrowLeft)x--;
+    if(keys.KeyD||keys.ArrowRight)x++;
+    if(keys.KeyW||keys.ArrowUp)y++;
+    if(keys.KeyS||keys.ArrowDown)y--;
+    const length=Math.hypot(x,y);
+    if(length>1){x/=length;y/=length}
+    return{x,y};
+  }
+
+  function collides(x,z){
+    return solid.some(c=>x>c.x1-.38&&x<c.x2+.38&&z>c.z1-.38&&z<c.z2+.38);
+  }
+
+  function animatePerson(p,dt,speed){
+    p.walk+=dt*(speed>0.3?7+speed*1.3:0);
+    for(const limb of p.limbs)limb.mesh.rotation.x=Math.sin(p.walk+limb.phase)*(limb.isLeg?.48:.24)*Math.min(1,speed/2);
+    p.group.position.y=Math.abs(Math.sin(p.walk*2))*.025*Math.min(1,speed/2);
+  }
+
+  function movePlayer(dt){
+    const input=getInput(),run=keys.ShiftLeft||keys.ShiftRight||sprintTouch,speed=run?6.6:4.1;
+    const dx=(-Math.sin(camYaw)*input.y+Math.cos(camYaw)*input.x)*speed*dt;
+    const dz=(-Math.cos(camYaw)*input.y-Math.sin(camYaw)*input.x)*speed*dt;
+    const p=player.group.position,nx=clamp(p.x+dx,-26.4,26.4),nz=clamp(p.z+dz,-26.4,26.4);
+    if(!collides(nx,p.z))p.x=nx;
+    if(!collides(p.x,nz))p.z=nz;
+    const moving=Math.hypot(input.x,input.y)>.05;
+    if(moving)player.group.rotation.y=Math.atan2(dx,-dz);
+    animatePerson(player,dt,moving?speed:0);
+  }
+
+  function updateBots(dt){
+    const p=player.group.position;
+    bots.forEach((b,i)=>{
+      const tx=p.x+Math.sin(camYaw)*(2.6+i*.3)+Math.cos(camYaw)*(i?1.5:-1.5);
+      const tz=p.z-Math.cos(camYaw)*(2.6+i*.3)+Math.sin(camYaw)*(i?1.5:-1.5);
+      const dx=tx-b.group.position.x,dz=tz-b.group.position.z,d=Math.hypot(dx,dz);
+      if(d>1.3){const step=Math.min(d-1.1,3*dt);b.group.position.x+=dx/d*step;b.group.position.z+=dz/d*step;b.group.rotation.y=Math.atan2(dx,dz);animatePerson(b,dt,3)}
+      else animatePerson(b,dt,0);
+    });
+  }
+
+  function updateGuards(dt){
+    const p=player.group.position;
+    guards.forEach(g=>{
+      const dx=p.x-g.group.position.x,dz=p.z-g.group.position.z,d=Math.hypot(dx,dz);
+      if(d<7.5&&Math.random()<.045)g.alert=4;
+      if(g.alert>0){
+        g.alert-=dt;
+        if(d>1.15){g.group.position.x+=dx/d*2.7*dt;g.group.position.z+=dz/d*2.7*dt;g.group.rotation.y=Math.atan2(dx,dz);animatePerson(g,dt,2.7)}
+        else if(g.cooldown<=0){p.set(0,0,21);g.cooldown=4;g.alert=0;notify(t().caught)}
+      }else{
+        const target=g.route[g.routeIndex],tx=target[0]-g.group.position.x,tz=target[1]-g.group.position.z,len=Math.hypot(tx,tz);
+        if(len<.8)g.routeIndex=(g.routeIndex+1)%g.route.length;
+        else{g.group.position.x+=tx/len*1.25*dt;g.group.position.z+=tz/len*1.25*dt;g.group.rotation.y=Math.atan2(tx,tz);animatePerson(g,dt,1.25)}
       }
-    }
-
-    const N = {
-      terminal_1: {
-        name: 'Log Terminal',
-        title: 'TERMINAL // ARCHITECT LOGS',
-        html: () => `
-          <div class="text-cyan-300 font-bold mb-2">&gt;&gt; LOG #804 - DR. VANCE</div>
-          <div class="text-slate-300 mb-3 bg-slate-950 p-3 rounded border border-slate-800">
-            "I split the vault key into 5 data chips and hid them around the building so the board could never find them all. At 13:00 I begin the mind transfer."
-          </div>
-          <p class="text-slate-400">Collect all 5 chips (glowing diamonds), then use the key dispenser.</p>
-        `,
-        acts: [['SAVE LOG', 'bg-cyan-600 hover:bg-cyan-500', () => { A.ok(); msg('Log saved.'); }]]
-      },
-      terminal_2: {
-        name: 'Key Dispenser',
-        title: 'TERMINAL // KEY DISPENSER',
-        html: () => `
-          <div class="text-emerald-400 font-bold mb-2">&gt;&gt; KEY DECRYPTION</div>
-          <p class="text-slate-300 mb-3">Chips loaded: ${S.n}/5</p>
-          ${S.key ? '<div class="text-green-400 font-bold">[KEY DECRYPTED]</div>' : '<div class="text-amber-400 font-bold">[AWAITING 5 CHIPS]</div>'}
-        `,
-        acts: [['DECRYPT KEY', 'bg-emerald-600 hover:bg-emerald-500', () => {
-          if (S.key) { msg('Already decrypted.'); return; }
-          if (S.n < 5) { A.no(); msg('Need all 5 chips. Missing ' + (5 - S.n) + '.'); return; }
-          ev({ t: 'key' });
-          refresh('terminal_2');
-          msg('VAULT KEY ALPHA acquired for the whole team.');
-        }]]
-      },
-      terminal_3: {
-        name: 'Threat Console',
-        title: 'TERMINAL // THREAT DETECTION',
-        html: () => `
-          <div class="text-red-400 font-bold mb-2">&gt;&gt; PURGE_VANCE PENDING</div>
-          <div class="text-slate-300 mb-3 bg-slate-950 p-3 rounded border border-red-900/50">
-            "A courier is brute-forcing the vault. Security will shoot trespassers on sight. Any reported casualty triggers a full police dispatch."
-          </div>
-          <p class="text-slate-300">Stay out of guard sight cones (they can't see through walls). Sprinting is loud.</p>
-        `,
-        acts: [['ANALYZE', 'bg-red-600 hover:bg-red-500 !text-white', () => { A.b(900, .1); msg('Guards see ~50 degrees ahead. Break line of sight to lose them.'); }]]
-      },
-      intruder: {
-        name: 'Suspect',
-        title: 'SUSPECT // DETAINED',
-        html: () => `
-          <div class="text-amber-300 font-bold mb-2">&gt;&gt; MASKED COURIER</div>
-          <div class="text-slate-200 bg-slate-950 p-3 rounded border border-amber-700/50">
-            "Don't shoot! The board hired me. The key is split into data chips hidden around the building, I only found one before the alarm!"
-          </div>
-        `,
-        acts: [['SEARCH POCKETS', 'bg-amber-500 hover:bg-amber-400', () => { A.b(300, .1); msg('A map fragment: chips glow in the dark.'); }]]
-      },
-      vault_door: {
-        name: 'Core Vault',
-        title: 'CENTRAL VAULT LOCK',
-        html: () => `
-          <div class="text-cyan-300 font-bold mb-2">&gt;&gt; VAULT ACCESS DOOR</div>
-          <p class="text-slate-300 mb-3">Behind this door lies Dr. Vance's digital core.</p>
-          ${vaultUnlocked ? '<div class="text-green-400 font-bold">[UNLOCKED]</div>' : S.key ? '<div class="text-cyan-400 font-bold">[READY FOR OVERRIDE]</div>' : '<div class="text-red-400 font-bold">[LOCKDOWN - KEY REQUIRED]</div>'}
-        `,
-        acts: [['OVERRIDE', 'bg-cyan-500 hover:bg-cyan-400', () => {
-          if (vaultUnlocked) { msg('Already open.'); return; }
-          if (!S.key) { A.no(); msg('ACCESS DENIED: key required.'); return; }
-          ev({ t: 'vault' });
-          closeModal();
-        }]]
-      },
-      core_mind: {
-        name: 'Vance Neural Core',
-        title: 'NEURAL MATRIX // MARCUS VANCE',
-        html: () => `
-          <div class="text-emerald-300 font-bold mb-2">&gt;&gt; DR. MARCUS VANCE</div>
-          <div class="text-slate-200 mb-3 bg-slate-950 p-4 border border-emerald-500/40 rounded space-y-2">
-            <p class="text-emerald-400 font-bold">"Detective... you made it."</p>
-            <p>"Purge the virus. But the purge trips every alarm. Run for the exit!"</p>
-          </div>
-        `,
-        acts: [['PURGE VIRUS', 'bg-emerald-500 hover:bg-emerald-400', () => { ev({ t: 'esc' }); closeModal(); }]]
-      }
-    };
-
-    /* ---------- THREE CORE ---------- */
-    let scene, camera, renderer, flash, world = false, vaultDoor, emblem, coreObj, alcoveLight, vance, intr, runner, police, TC, vaultOpen = 0, vaultTarget = 0, bob = 0, xs, zs, vx = 0, exitM, jailPt, spawn;
-    const V = -26.9, H = 4.5, clock = new THREE.Clock(), yaw = new THREE.Object3D(), pitch = new THREE.Object3D(), vel = new THREE.Vector3(), K = {};
-    const walls = [], obst = [], inter = [], npcs = [], rl = [], chips = [];
-    const xc = i => (xs[i] + xs[i + 1]) / 2;
-    const zc = j => (zs[j] + zs[j + 1]) / 2;
-
-    const cell = (x, z) => [
-      Math.max(0, Math.min(xs.length - 2, xs.findIndex((v, i) => x >= v && x < xs[i + 1]))),
-      Math.max(0, Math.min(zs.length - 2, zs.findIndex((v, i) => z >= v && z < zs[i + 1])))
-    ].map(v => v < 0 ? 0 : v);
-
-    function tex(draw, rx = 1, ry = rx, size = 256) {
-      const c = document.createElement('canvas');
-      c.width = c.height = size;
-      draw(c.getContext('2d'), size);
-      const t = new THREE.CanvasTexture(c);
-      t.wrapS = t.wrapT = THREE.RepeatWrapping;
-      t.repeat.set(rx, ry);
-      t.encoding = THREE.sRGBEncoding;
-      t.anisotropy = 8;
-      return t;
-    }
-
-    const panel = (col, rx, ry) => tex((x, s) => {
-      x.fillStyle = col;
-      x.fillRect(0, 0, s, s);
-      for (let i = 0; i < 1400; i++) {
-        x.fillStyle = Math.random() < .5 ? 'rgba(0,0,0,.07)' : 'rgba(255,255,255,.04)';
-        x.fillRect(Math.random() * s, Math.random() * s, 3, 3);
-      }
-      x.strokeStyle = 'rgba(0,0,0,.45)';
-      x.lineWidth = 4;
-      x.strokeRect(0, 0, s, s);
-    }, rx, ry);
-
-    function rng(a) {
-      return () => {
-        a |= 0;
-        a = a + 0x6D2B79F5 | 0;
-        let t = Math.imul(a ^ a >>> 15, 1 | a);
-        t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
-        return ((t ^ t >>> 14) >>> 0) / 4294967296;
-      };
-    }
-
-    function init() {
-      scene = new THREE.Scene();
-      camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, .1, 120);
-      pitch.add(camera);
-      yaw.add(pitch);
-      scene.add(yaw);
-
-      renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer.setSize(innerWidth, innerHeight);
-      renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-      renderer.shadowMap.enabled = true;
-      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-      renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.outputEncoding = THREE.sRGBEncoding;
-      $('cv').appendChild(renderer.domElement);
-
-      flash = new THREE.SpotLight(0xfff4e0, 1.9, 30, .55, .55, 1.4);
-      flash.castShadow = true;
-      flash.shadow.mapSize.set(1024, 1024);
-      flash.shadow.bias = -.0005;
-      flash.position.set(.12, -.1, 0);
-      flash.target.position.set(0, 0, -6);
-      camera.add(flash);
-      camera.add(flash.target);
-
-      addEventListener('resize', () => {
-        camera.aspect = innerWidth / innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(innerWidth, innerHeight);
-      });
-
-      controls();
-      loop();
-    }
-
-    function buildWorld(c) {
-      TC = c; xs = c.xs; zs = c.zs;
-      const R = rng(sel * 977 + 13);
-
-      scene.background = new THREE.Color(c.bg);
-      scene.fog = new THREE.FogExp2(c.bg, c.fog);
-      renderer.toneMappingExposure = c.ex;
-      scene.add(new THREE.HemisphereLight(c.lc, 0, c.amb));
-      $('loc').textContent = 'SECTOR 13 // ' + c.n.toUpperCase();
-
-      const fl = new THREE.Mesh(
-        new THREE.PlaneGeometry(54, 54),
-        new THREE.MeshStandardMaterial({ map: panel(c.floor, 13.5), roughness: .3, metalness: .35 })
-      );
-      fl.rotation.x = -Math.PI / 2;
-      fl.receiveShadow = true;
-      scene.add(fl);
-
-      const ce = new THREE.Mesh(
-        new THREE.PlaneGeometry(54, 54),
-        new THREE.MeshStandardMaterial({ map: panel(c.wall, 13.5), roughness: .9 })
-      );
-      ce.position.y = H;
-      ce.rotation.x = Math.PI / 2;
-      scene.add(ce);
-
-      const wm = new THREE.MeshStandardMaterial({ map: panel(c.wall, 2, 1), roughness: .8, metalness: .1 });
-
-      const W = (x1, x2, y1, y2, z1, z2, solid = 1) => {
-        const m = new THREE.Mesh(new THREE.BoxGeometry(x2 - x1, y2 - y1, z2 - z1), wm);
-        m.position.set((x1 + x2) / 2, (y1 + y2) / 2, (z1 + z2) / 2);
-        m.castShadow = m.receiveShadow = true;
-        scene.add(m);
-        if (solid) walls.push({ x1, x2, z1, z2 });
-      };
-
-      const nc = xs.length - 1, nr = zs.length - 1;
-      let vc = 0;
-      for (let i = 0; i < nc; i++) if (Math.abs(xc(i)) < Math.abs(xc(vc))) vc = i;
-      vx = xc(vc);
-
-      W(-27, 27, 0, H, 27, 27.3);
-      W(-27, vx - 3, 0, H, -27.3, -27);
-      W(vx + 3, 27, 0, H, -27.3, -27);
-      W(-27.3, -27, 0, H, -27, 27);
-      W(27, 27.3, 0, H, -27, 27);
-
-      for (let i = 1; i < nc; i++) {
-        const x = xs[i];
-        for (let j = 0; j < nr; j++) {
-          const a = zs[j], b = zs[j + 1], m = zc(j);
-          W(x - .15, x + .15, 0, H, a, m - 1.5);
-          W(x - .15, x + .15, 0, H, m + 1.5, b);
-          W(x - .15, x + .15, 3, H, m - 1.5, m + 1.5, 0);
-        }
-      }
-
-      for (let j = 1; j < nr; j++) {
-        const z = zs[j];
-        for (let i = 0; i < nc; i++) {
-          const a = xs[i], b = xs[i + 1], m = xc(i);
-          W(a, m - 1.5, 0, H, z - .15, z + .15);
-          W(m + 1.5, b, 0, H, z - .15, z + .15);
-          W(m - 1.5, m + 1.5, 3, H, z - .15, z + .15, 0);
-        }
-      }
-
-      const pm = new THREE.MeshBasicMaterial({ color: c.lc });
-      const pr = new THREE.MeshStandardMaterial({ color: c.prop, roughness: .6, metalness: .4 });
-      const sc = new THREE.MeshBasicMaterial({ color: c.acc });
-
-      const B = (w, h, d, x, y, z, m = pr) => {
-        const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m);
-        o.position.set(x, y, z);
-        o.castShadow = o.receiveShadow = true;
-        scene.add(o);
-        return o;
-      };
-
-      const tc = [[0, 0], [nc - 1, nr - 1], [nc >> 1, nr >> 1]];
-
-      for (let i = 0; i < nc; i++) {
-        for (let j = 0; j < nr; j++) {
-          const cx = xc(i), cz = zc(j);
-          const hw = (xs[i + 1] - xs[i]) / 2;
-          const hh = (zs[j + 1] - zs[j]) / 2;
-          const pl = new THREE.PointLight(c.lc, c.li, Math.max(14, Math.min(hw, hh) * 2 + 8), 1.5);
-          pl.position.set(cx, H - .6, cz);
-          pl.userData.b = c.li;
-          scene.add(pl);
-          rl.push(pl);
-
-          const pn = new THREE.Mesh(new THREE.PlaneGeometry(3, .5), pm);
-          pn.rotation.x = Math.PI / 2;
-          pn.position.set(cx, H - .02, cz);
-          scene.add(pn);
-
-          if (tc.some(t => t[0] === i && t[1] === j)) continue;
-
-          for (const sx of [-1, 1]) {
-            for (const sz of [-1, 1]) {
-              const x = cx + sx * (hw - 2.8);
-              const z = cz + sz * (hh - 2.8);
-              const r = R();
-              if (r < .3) {
-                B(2, .8, 1, x, .4, z);
-                B(.7, .45, .05, x, 1.05, z - .3 * sz, sc);
-              } else if (r < .55) {
-                B(1.2, 1.2, 1.2, x, .6, z);
-                B(.9, .9, .9, x + .2, 1.65, z);
-              } else if (r < .8) {
-                B(1.4, 2.4, .6, x, 1.2, z);
-              } else {
-                const p = new THREE.Mesh(new THREE.CylinderGeometry(.4, .4, H, 12), pr);
-                p.position.set(x, H / 2, z);
-                p.castShadow = true;
-                scene.add(p);
-              }
-              obst.push({ p: new THREE.Vector3(x, 0, z), r: 1 });
-            }
-          }
-        }
-      }
-
-      const used = new Set([`${tc[0]}`, `${tc[1]}`]);
-      let k = 0, guard = 0;
-      while (k < 5 && guard++ < 99) {
-        const i = Math.floor(R() * nc);
-        const j = Math.floor(R() * nr);
-        const key = i + ',' + j;
-        if (used.has(key) || (i === nc >> 1 && j === nr - 1)) continue;
-        used.add(key);
-        const m = new THREE.Mesh(new THREE.OctahedronGeometry(.28), new THREE.MeshStandardMaterial({ color: c.acc, emissive: c.acc, emissiveIntensity: 1.2 }));
-        m.position.set(xc(i) + (R() - .5) * 3, 1.1, zc(j) + (R() - .5) * 3);
-        scene.add(m);
-        const l = new THREE.PointLight(c.acc, .8, 5);
-        m.add(l);
-        chips.push({ m, got: 0 });
-        k++;
-      }
-
-      while (chips.length < 5) {
-        const m = new THREE.Mesh(new THREE.OctahedronGeometry(.28), new THREE.MeshStandardMaterial({ color: c.acc, emissive: c.acc, emissiveIntensity: 1.2 }));
-        m.position.set(xc(0) + chips.length, 1.1, zc(nr - 1));
-        scene.add(m);
-        chips.push({ m, got: 0 });
-      }
-
-      [[0, '#22d3ee', 'terminal_1'], [1, '#34d399', 'terminal_2'], [2, '#f87171', 'terminal_3']].forEach(([n, hex, id]) => {
-        const [i, j] = tc[n];
-        const x = xc(i) + 2.6;
-        const z = zc(j) + 2.6;
-        const g = new THREE.Group();
-        const mt = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: .8, roughness: .4 });
-
-        const b = new THREE.Mesh(new THREE.CylinderGeometry(.5, .7, 1.7, 8), mt);
-        b.position.y = .85;
-        g.add(b);
-
-        const bx = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1, .4), new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: .5, roughness: .4 }));
-        bx.position.y = 1.8;
-        g.add(bx);
-
-        const s = new THREE.Mesh(new THREE.PlaneGeometry(1.2, .8), new THREE.MeshBasicMaterial({
-          map: tex((x2, sz) => {
-            x2.fillStyle = '#02060c';
-            x2.fillRect(0, 0, sz, sz);
-            x2.fillStyle = hex;
-            for (let q = 0; q < 13; q++) x2.fillRect(16, 16 + q * 18, 20 + Math.random() * 190, 8);
-          }, 1)
-        }));
-        s.position.set(0, 1.8, .21);
-        g.add(s);
-
-        g.position.set(x, 0, z);
-        g.lookAt(xc(i), 0, zc(j));
-        g.traverse(m => { if (m.isMesh) m.castShadow = true; });
-        g.userData = { nodeId: id };
-        scene.add(g);
-        inter.push(g);
-        obst.push({ p: g.position, r: .8 });
-
-        const l = new THREE.PointLight(hex, .8, 6);
-        l.position.set(x, 2, z);
-        scene.add(l);
-      });
-
-      const fmM = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: .85, roughness: .4 });
-      B(1, H, 3, vx - 3.5, H / 2, V - 1.5, fmM);
-      B(1, H, 3, vx + 3.5, H / 2, V - 1.5, fmM);
-      B(8, .9, 3, vx, H - .45, V - 1.5, fmM);
-      B(6, .05, 3, vx, .02, V - 1.5, fmM);
-      B(6, H, .3, vx, H / 2, V - 3.1, fmM);
-
-      vaultDoor = new THREE.Group();
-      vaultDoor.position.x = vx;
-      const pl2 = new THREE.Mesh(new THREE.BoxGeometry(5.96, 3.6, .3), new THREE.MeshStandardMaterial({ color: 0x0369a1, metalness: .9, roughness: .25 }));
-      pl2.position.set(0, 1.8, V - .1);
-      pl2.castShadow = true;
-      vaultDoor.add(pl2);
-
-      emblem = new THREE.Mesh(new THREE.TorusGeometry(1.1, .09, 12, 48), new THREE.MeshBasicMaterial({ color: 0x22d3ee }));
-      emblem.position.set(0, 1.9, V + .07);
-      vaultDoor.add(emblem);
-
-      vaultDoor.userData = { nodeId: 'vault_door' };
-      scene.add(vaultDoor);
-      inter.push(vaultDoor);
-
-      const pad = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.2, .06, 32), new THREE.MeshStandardMaterial({ color: 0x064e3b, emissive: 0x10b981, emissiveIntensity: .8 }));
-      pad.position.set(vx, .05, V - 2.1);
-      scene.add(pad);
-
-      alcoveLight = new THREE.PointLight(0x34d399, 0, 9);
-      alcoveLight.position.set(vx, 2.6, V - 1.5);
-      scene.add(alcoveLight);
-
-      coreObj = new THREE.Mesh(new THREE.IcosahedronGeometry(.3, 1), new THREE.MeshStandardMaterial({ color: 0x10b981, wireframe: true, emissive: 0x34d399, emissiveIntensity: 1 }));
-      coreObj.position.set(vx, 1.4, V - 1.2);
-      coreObj.visible = false;
-      coreObj.userData = { nodeId: 'core_mind' };
-      scene.add(coreObj);
-      inter.push(coreObj);
-
-      spawn = [xc(nc >> 1), 24.5];
-      yaw.position.set(spawn[0], 1.7, spawn[1]);
-
-      exitM = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 1.6, .08, 24), new THREE.MeshBasicMaterial({ color: 0x22c55e }));
-      exitM.position.set(spawn[0], .05, spawn[1]);
-      exitM.visible = false;
-      scene.add(exitM);
-
-      jailPt = [xc(0), zc(nr - 1) + 2.5];
-      const jm = new THREE.Mesh(new THREE.TorusGeometry(1.1, .06, 8, 24), new THREE.MeshBasicMaterial({ color: 0xfb923c }));
-      jm.rotation.x = Math.PI / 2;
-      jm.position.set(jailPt[0], .05, jailPt[1]);
-      scene.add(jm);
-
-      /* Characters */
-      const mk = (o, x, z, v, guardian = 0) => {
-        const h = human(o);
-        h.g.position.set(x, 0, z);
-        h.v = v;
-        h.guard = !!guardian;
-        h.pg = null;
-        h.st = 0;
-        h.lost = 0;
-        scene.add(h.g);
-        npcs.push(h);
-        obst.push({ p: h.g.position, r: .45, h });
-        return h;
-      };
-
-      const civColors = [
-        ['#fcd34d', '#2563eb', '#1e293b', '#111'],
-        ['#f2c291', '#3b82f6', '#334155', '#3f3f46'],
-        ['#d97706', '#8b5cf6', '#1f2937', '#3b2f2f'],
-        ['#f5d0fe', '#10b981', '#2d3748', '#4c1d95'],
-        ['#a7f3d0', '#f59e0b', '#475569', '#0f172a']
-      ];
-
-      const spawnCrowd = () => {
-        const positions = [
-          [1, 6], [2, 8], [3, 5], [5, 2], [6, 9], [7, 3],
-          [8, 6], [9, 2], [2, 3], [5, 7], [4, 9], [8, 8],
-          [1, 1], [9, 1], [6, 2], [3, 9]
-        ];
-
-        positions.forEach(([ix, iz], idx) => {
-          const [r, g, b] = civColors[idx % civColors.length];
-          const x = xc(Math.min(ix, nc - 1)) + (idx % 2 === 0 ? -.8 : .8);
-          const z = zc(Math.min(iz, nr - 1)) + (idx % 3 === 0 ? -.8 : .8);
-          mk({ skin: r, shirt: g, pants: b, hair: '#111', cap: 1 }, x, z, 1.0 + (idx % 4) * .15, 0);
-        });
-      };
-
-      const spawnGuardWave = () => {
-        const guardSpots = [
-          [1, 1], [4, 5], [7, 2], [8, 9]
-        ];
-        guardSpots.forEach(([ix, iz], idx) => {
-          const x = xc(Math.min(ix, nc - 1));
-          const z = zc(Math.min(iz, nr - 1));
-          const g = mk({
-            skin: '#fcd34d',
-            shirt: '#1f2937',
-            pants: '#111827',
-            hair: '#111',
-            cap: 1,
-            gun: 1
-          }, x, z, 1.25 + idx * .1, 1);
-          g.dormant = 0;
-          g.st = 0;
-        });
-      };
-
-      runner = mk({ skin: '#fcd34d', shirt: '#2563eb', pants: '#1e293b', hair: '#111', cap: 1, gun: 1 }, xc(0), zc(nr - 1), 1.6, 1);
-      mk({ skin: '#d97706', shirt: '#2563eb', pants: '#1e293b', hair: '#111', cap: 1, gun: 1 }, xc(nc - 1), zc(1), 1.4, 1);
-      mk({ skin: '#fcd34d', shirt: '#1d4ed8', pants: '#0f172a', hair: '#78350f', cap: 1, gun: 1 }, xc(1), zc(0), 1.4, 1);
-
-      police = mk({ skin: '#fdba74', shirt: '#111827', pants: '#111827', hair: '#111', cap: 1, gun: 1 }, spawn[0], zs[nr] - 2, 1.5, 1);
-      police.dormant = 1;
-      police.g.visible = false;
-
-      spawnCrowd();
-      spawnGuardWave();
-
-      npcs.forEach((h, i) => h.i = i);
-
-      intr = human({ skin: '#fcd34d', shirt: '#1f1f1f', pants: '#374151', hair: '#111', mask: 1, hood: 1 });
-      intr.g.position.set(vx, 0, V + .8);
-      intr.g.rotation.y = Math.PI;
-      intr.g.userData = { nodeId: 'intruder' };
-      scene.add(intr.g);
-      inter.push(intr.g);
-
-      vance = human({ skin: '#a7f3d0', shirt: '#34d399', pants: '#34d399', hair: '#34d399', holo: 1 });
-      vance.g.position.set(vx, .08, V - 2.1);
-      vance.g.visible = false;
-      scene.add(vance.g);
-
-      world = true;
-      HUD();
-      renderInv();
-    }
-
-    /* ---------- CARTOON HUMANOID ---------- */
-    function human(o) {
-      const hl = !!o.holo;
-      const mt = [];
-      const S2 = (c, r = .9) => {
-        const m = hl ? new THREE.MeshStandardMaterial({ color: c, emissive: c, emissiveIntensity: .8, transparent: true, opacity: .72, depthWrite: false }) : new THREE.MeshToonMaterial({ color: c });
-        mt.push(m);
-        return m;
-      };
-
-      const sk = S2(o.skin), sh = S2(o.shirt), pa = S2(o.pants), ha = S2(o.hair), so = S2('#0b0b0b'), wh = S2('#ffffff');
-
-      const G = (p, x, y) => {
-        const g = new THREE.Group();
-        g.position.set(x, y, 0);
-        p.add(g);
-        return g;
-      };
-
-      const ball = (p, r, m, x, y, z, sx = 1, sy = 1, sz = 1) => {
-        const b = new THREE.Mesh(new THREE.SphereGeometry(r, 14, 10), m);
-        b.position.set(x, y, z);
-        b.scale.set(sx, sy, sz);
-        b.castShadow = !hl;
-        p.add(b);
-        return b;
-      };
-
-      const limb = (p, r1, r2, h, m, x, y) => {
-        const g = G(p, x, y);
-        const c = new THREE.Mesh(new THREE.CylinderGeometry(r1, r2, h, 10).translate(0, -h / 2, 0), m);
-        c.castShadow = !hl;
-        g.add(c);
-        return g;
-      };
-
-      const cyl = (p, r1, r2, h, m, y, sz) => {
-        const c = new THREE.Mesh(new THREE.CylinderGeometry(r1, r2, h, 12).translate(0, y, 0), m);
-        c.scale.z = sz;
-        c.castShadow = !hl;
-        p.add(c);
-      };
-
-      const g = new THREE.Group();
-      g.rotation.order = 'YXZ';
-
-      const hips = G(g, 0, .98);
-      const chest = G(hips, 0, .05);
-      ball(hips, .22, pa, 0, -.05, 0, 1, .75, .8);
-      cyl(chest, .28, .23, .6, sh, .3, .7);
-      if (o.coat) cyl(chest, .29, .36, .8, sh, -.1, .72);
-
-      const head = G(chest, 0, .7);
-      ball(head, .21, o.mask ? so : sk, 0, .2, 0, 1, 1.05, 1);
-      ball(head, .22, o.hood ? sh : ha, 0, .26, -.03, 1, .8, 1.02);
-      [-1, 1].forEach(s => {
-        ball(head, .055, wh, s * .08, .22, .17, 1, 1.25, .6);
-        ball(head, .026, so, s * .08, .22, .205, 1, 1.2, .6);
-      });
-      if (o.cap) {
-        const cp = new THREE.Mesh(new THREE.BoxGeometry(.3, .04, .2), sh);
-        cp.position.set(0, .36, .1);
-        head.add(cp);
-      }
-
-      const arm = s => {
-        const sd = limb(chest, .07, .06, .3, sh, s * .34, .56);
-        ball(sd, .085, sh, 0, 0, 0);
-        const el = limb(sd, .06, .05, .28, o.coat || o.hood ? sh : sk, 0, -.3);
-        ball(el, .08, wh, 0, -.28, 0);
-        return [sd, el];
-      };
-
-      const leg = s => {
-        const hp = limb(hips, .11, .09, .46, pa, s * .11, -.08);
-        const kn = limb(hp, .09, .07, .44, pa, 0, -.46);
-        const sb = new THREE.Mesh(new THREE.BoxGeometry(.15, .1, .3), so);
-        sb.position.set(0, -.42, .06);
-        sb.castShadow = true;
-        kn.add(sb);
-        return [hp, kn];
-      };
-
-      const [aL, eL] = arm(-1);
-      const [aR, eR] = arm(1);
-      const [lL, kL] = leg(-1);
-      const [lR, kR] = leg(1);
-
-      let gun = null;
-      if (o.gun) {
-        gun = new THREE.Mesh(new THREE.BoxGeometry(.05, .08, .2), so);
-        gun.position.set(0, -.3, .1);
-        gun.visible = false;
-        eR.add(gun);
-      }
-
-      return { g, hips, chest, head, aL, eL, aR, eR, lL, kL, lR, kR, mats: mt, id: Math.random() * 6, ph: 0, sp: 0, gun };
-    }
-
-    function pose(h, dt, t) {
-      const s = h.sp, a = Math.min(1, s / 1.2), r = Math.max(0, Math.min(1, (s - 2) / 3));
-      h.ph += dt * (s > .05 ? 2 + s * 2.3 : 0);
-      const p = h.ph, S = Math.sin(p), sw = .55 + .5 * r;
-
-      h.lL.rotation.x = -S * sw * a;
-      h.lR.rotation.x = S * sw * a;
-      h.kL.rotation.x = Math.max(0, Math.sin(p + 1.3)) * (.8 + .7 * r) * a;
-      h.kR.rotation.x = Math.max(0, -Math.sin(p + 1.3)) * (.8 + .7 * r) * a;
-
-      h.aL.rotation.x = S * (.5 + .4 * r) * a;
-      h.aR.rotation.x = -S * (.5 + .4 * r) * a;
-      h.aL.rotation.z = -.06;
-      h.aR.rotation.z = .06;
-      h.eL.rotation.x = h.eR.rotation.x = -(.15 + .25 * a + r);
-      h.hips.position.y = .98 - .03 * a - .05 * r + Math.abs(Math.cos(p)) * (.03 + .04 * r) * a;
-      h.chest.rotation.x = .04 * a + .28 * r;
-      h.chest.rotation.y = S * (.08 + .1 * r) * a;
-      h.chest.scale.y = 1 + Math.sin(t * 1.8 + h.id) * .012;
-    }
-
-    function look(h, dt, maxD) {
-      const p = h.g.position, pl = yaw.position;
-      let tg = 0;
-      if (maxD && Math.hypot(pl.x - p.x, pl.z - p.z) < maxD) {
-        tg = Math.atan2(pl.x - p.x, pl.z - p.z) - h.g.rotation.y;
-        tg = Math.max(-1.1, Math.min(1.1, Math.atan2(Math.sin(tg), Math.cos(tg))));
-      }
-      h.head.rotation.y += (tg - h.head.rotation.y) * Math.min(1, dt * 5);
-    }
-
-    function turn(h, tx, tz, k, dt) {
-      let d = Math.atan2(tx - h.g.position.x, tz - h.g.position.z) - h.g.rotation.y;
-      d = Math.atan2(Math.sin(d), Math.cos(d));
-      h.g.rotation.y += d * Math.min(1, dt * k);
-      return d;
-    }
-
-    /* ---------- AI ---------- */
-    function nav(p, gx, gz) {
-      const [ci, cj] = cell(p.x, p.z);
-      const [gi, gj] = cell(gx, gz);
-      if (ci === gi && cj === gj) return [gx, gz];
-      if (ci !== gi) return [gi > ci ? xs[ci + 1] : xs[ci], zc(cj)];
-      return [xc(ci), gj > cj ? zs[cj + 1] : zs[cj]];
-    }
-
-    function los(ax, az, bx, bz) {
-      const n = Math.ceil(Math.hypot(bx - ax, bz - az) / .25);
-      for (let i = 1; i < n; i++) {
-        const x = ax + (bx - ax) * i / n;
-        const z = az + (bz - az) * i / n;
-        if (walls.some(w => x > w.x1 - .05 && x < w.x2 + .05 && z > w.z1 - .05 && z < w.z2 + .05)) return false;
-      }
-      return true;
-    }
-
-    function move(h, dt, gx, gz, spd) {
-      const p = h.g.position;
-      const [tx, tz] = nav(p, gx, gz);
-      const d = turn(h, tx, tz, spd > 3 ? 7 : 3, dt);
-      const w = Math.abs(d) > .8 ? spd * .3 : spd;
-      h.sp += (w - h.sp) * Math.min(1, dt * 5);
-      p.x += Math.sin(h.g.rotation.y) * h.sp * dt;
-      p.z += Math.cos(h.g.rotation.y) * h.sp * dt;
-    }
-
-    function targets() {
-      const L = [];
-      if (!jailed) L.push({ x: yaw.position.x, z: yaw.position.z, s: vel.length() > 3.6, me: 1 });
-      peersL.forEach(p => {
-        if (p.sameTab || p.kind !== 'viewer' || p.presence.x == null || p.presence.j) return;
-        L.push({ x: p.presence.x, z: p.presence.z, s: !!p.presence.s, peer: p.peer });
-      });
-      return L;
-    }
-
-    function sees(h, tg, d) {
-      if (d > 11 + 2 * heat || h.dead) return false;
-      if (tg.s && d < 6) return los(h.g.position.x, h.g.position.z, tg.x, tg.z);
-      let a = Math.atan2(tg.x - h.g.position.x, tg.z - h.g.position.z) - h.g.rotation.y;
-      a = Math.atan2(Math.sin(a), Math.cos(a));
-      return Math.abs(a) < .9 && los(h.g.position.x, h.g.position.z, tg.x, tg.z);
-    }
-
-    function dispatch(x, z) {
-      npcs.forEach(h => {
-        if (h.guard && !h.dormant && !h.dead && h.st < 2 && h.st !== 3) {
-          h.st = 1;
-          h.go = [x, z];
+      g.cooldown=Math.max(0,g.cooldown-dt);
+    });
+  }
+
+  function updateCamera(dt){
+    const p=player.group.position,distance=8.2,height=3.1+camPitch*3.5;
+    const desired=new THREE.Vector3(p.x+Math.sin(camYaw)*distance,p.y+height,p.z+Math.cos(camYaw)*distance);
+    camera.position.lerp(desired,1-Math.exp(-7*dt));
+    camera.lookAt(p.x,p.y+1.05,p.z);
+    flash.position.copy(camera.position);flash.target.position.set(p.x,1,p.z-4);
+  }
+
+  function update(dt,time){
+    if(!renderer||!scene)return;
+    if(started&&!finished){
+      movePlayer(dt);updateBots(dt);updateGuards(dt);findNearby();
+      chips.forEach(c=>{
+        if(!c.found&&dist(player.group.position,c.mesh.position)<1.15){
+          c.found=true;c.mesh.visible=false;notify(t().found);
+          if(chips.every(x=>x.found))notify(t().all);
+          updateHud();
         }
       });
-    }
-
-    function wake() {
-      if (!police.dormant) return;
-      police.dormant = 0;
-      police.g.visible = true;
-      police.st = 1;
-      police.go = [yaw.position.x, yaw.position.z];
-    }
-
-    function npcAI(h, dt, t) {
-      const p = h.g.position;
-      if (h.dead) return;
-
-      if (h.dormant) return;
-
-      if (h === runner && phase < 2 && alarmed) {
-        move(h, dt, vx, V + 3.3, 5.6);
-        if (Math.hypot(vx - p.x, V + 3.3 - p.z) < 1.2) {
-          h.st = 3;
-          ev({ t: 'phase', n: 2 });
-          A.b(220, .4, 'sawtooth', .15);
-        }
-      } else if (h.st === 3) {
-        h.sp *= .9;
-        turn(h, vx, V + .8, 5, dt);
-      } else if (h.guard) {
-        let seen = null, bd = 1e9;
-
-        targets().forEach(tg => {
-          const d = Math.hypot(tg.x - p.x, tg.z - p.z);
-          if ((phase === 3 || sees(h, tg, d)) && d < bd) {
-            bd = d;
-            seen = tg;
-          }
-        });
-
-        if (seen) {
-          if (h.st !== 2) {
-            h.st = 2;
-            if (seen.me) A.b(900, .15, 'square');
-            ban('SPOTTED! GUARD CHASING');
-          }
-          h.lost = 0;
-          h.last = [seen.x, seen.z];
-          move(h, dt, seen.x, seen.z, 4.2 + .5 * heat + (phase === 3 ? .6 : 0));
-
-          if (bd < 1.15) {
-            if (seen.me) ev({ t: 'jail', p: myPeer });
-            else if (seen.peer) ev({ t: 'jail', p: seen.peer });
-            if (seen.me && !room) jail();
-            h.st = 0;
-          }
-        } else if (h.st === 2) {
-          h.lost += dt;
-          if (h.lost > 6) {
-            h.st = 1;
-            h.go = h.last;
-          } else {
-            move(h, dt, h.last[0], h.last[1], 3.2);
-          }
-        } else if (h.st === 1) {
-          move(h, dt, h.go[0], h.go[1], 2.6);
-          if (Math.hypot(h.go[0] - p.x, h.go[1] - p.z) < 1.2) {
-            h.wait = (h.wait || 0) + dt;
-            h.sp *= .8;
-            if (h.wait > 3) { h.st = 0; h.wait = 0; }
-          }
-        } else {
-          patrol(h, dt);
-        }
-      } else {
-        patrol(h, dt);
-      }
-
-      pose(h, dt, t);
-    }
-
-    function patrol(h, dt) {
-      const p = h.g.position;
-      if (!h.pg || Math.hypot(h.pg[0] - p.x, h.pg[1] - p.z) < .8) {
-        const [i, j] = cell(p.x, p.z);
-        const o = [[1,0],[-1,0],[0,1],[0,-1]].filter(([a, b]) => i + a >= 0 && i + a < xs.length - 1 && j + b >= 0 && j + b < zs.length - 1);
-        const [a, b] = o[Math.floor(Math.random() * o.length)];
-        h.pg = [xc(i + a), zc(j + b)];
-      }
-      move(h, dt, h.pg[0], h.pg[1], h.v);
-    }
-
-    function killNpc(i) {
-      const h = npcs[i];
-      if (!h || h.dead) return;
-      h.dead = 1;
-      h.k = 0;
-      h.sp = 0;
-      if (h.gun) h.gun.visible = false;
-    }
-
-    /* ---------- ARREST / ESCAPE ---------- */
-    function jail() {
-      if (jailed) return;
-      jailed = 1;
-      jt = 0;
-      yaw.position.set(jailPt[0], 1.7, jailPt[1]);
-      vel.set(0, 0, 0);
-      A.alarm();
-      $('jail').classList.remove('hidden');
-      if (room) safeRoomEmit('ev', { t: 'jail', p: myPeer });
-      npcs.forEach(h => { if (h.st === 2) h.st = 0; });
-    }
-
-    function release() {
-      if (!jailed) return;
-      jailed = 0;
-      $('jail').classList.add('hidden');
-      ban('FREED! RUN!');
-      if (room) safeRoomEmit('ev', { t: 'free', p: myPeer });
-    }
-
-    function end(win) {
-      if (done) return;
-      done = true;
-      if (document.pointerLockElement) document.exitPointerLock();
-      const s = $('start');
-      s.innerHTML = `
-        <div class="max-w-2xl border-2 ${win ? 'border-emerald-500' : 'border-red-500'} p-8 rounded-xl bg-slate-900/90 text-center">
-          <h1 class="text-3xl font-black ${win ? 'text-emerald-400' : 'text-red-400'} mb-4">${win ? 'CASE CLOSED - YOU ESCAPED' : 'REINFORCEMENTS ARRIVED'}</h1>
-          <p class="text-slate-300 mb-6">${win ? 'Vance is safe in the core and the board is exposed.' : 'The building is locked down. Try another map or a quieter approach.'}</p>
-          <button onclick="location.reload()" class="px-8 py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-lg">PLAY AGAIN</button>
-        </div>
-      `;
-      s.classList.remove('hidden');
-    }
-
-    /* ---------- MULTIPLAYER ---------- */
-    async function joinRoom() {
-      try {
-        const r = await window.claude.use('room');
-        if (!r) return;
-        room = await r.join('g' + sel);
-
-        room.on('ev', m => {
-          if (!m.sameTab) handleEv(m.data);
-        });
-
-        room.on('npc', m => {
-          if (isHost || !world) return;
-          m.data.forEach((a, i) => {
-            const h = npcs[i];
-            if (!h) return;
-            h.nx = a[0];
-            h.nz = a[1];
-            h.nr = a[2];
-            h.sp = a[3];
-            h.sy = 1;
-            if (a[4] && !h.dead) killNpc(i);
-            if (!a[5] && h.dormant && i === 3) {
-              h.dormant = 0;
-              h.g.visible = true;
-            }
-          });
-        });
-
-        room.onPeers(ch => {
-          peersL = ch.peers;
-          const me = ch.peers.find(p => p.sameTab);
-          myPeer = me && me.peer;
-          const v = ch.peers.filter(p => p.kind === 'viewer').map(p => p.peer).sort();
-          isHost = !v.length || v[0] === myPeer;
-          HUD();
-          Object.keys(av).forEach(k => {
-            if (!ch.peers.some(p => p.peer === k)) {
-              scene.remove(av[k].g);
-              delete av[k];
-            }
-          });
-        });
-      } catch (e) {
-        room = null;
+      if(phase===3){
+        escapeTime-=dt;
+        $("objective").textContent=`${t().escape} ${Math.ceil(escapeTime)}s`;
+        if(dist(player.group.position,exitMark.position)<2.2)finish(true);
+        else if(escapeTime<=0)finish(false);
       }
     }
-
-    const hue = s => {
-      let n = 0;
-      for (const c of s) n = (n * 31 + c.charCodeAt(0)) % 360;
-      return `hsl(${n},75%,55%)`;
-    };
-
-    function avatars(dt, t) {
-      peersL.forEach(p => {
-        if (p.sameTab || p.kind !== 'viewer' || p.presence.x == null) return;
-        let a = av[p.peer];
-        if (!a) {
-          a = av[p.peer] = human({
-            skin: '#fcd34d',
-            shirt: hue(p.peer),
-            pants: '#1e293b',
-            hair: '#111',
-            cap: 1
-          });
-          a.g.position.set(p.presence.x, 0, p.presence.z);
-          scene.add(a.g);
-        }
-
-        const pp = a.g.position;
-        const d = Math.hypot(p.presence.x - pp.x, p.presence.z - pp.z);
-        a.sp += (Math.min(6, d / Math.max(dt, .001)) - a.sp) * Math.min(1, dt * 6);
-
-        pp.x += (p.presence.x - pp.x) * Math.min(1, dt * 10);
-        pp.z += (p.presence.z - pp.z) * Math.min(1, dt * 10);
-
-        let r = p.presence.r - a.g.rotation.y;
-        r = Math.atan2(Math.sin(r), Math.cos(r));
-        a.g.rotation.y += r * Math.min(1, dt * 10);
-
-        pose(a, dt, t);
-        a.g.userData = { peer: p.peer, jailed: p.presence.j };
-      });
-    }
-
-    /* ---------- CONTROLS ---------- */
-    const lock = () => {
-      try {
-        const p = document.body.requestPointerLock();
-        if (p && p.catch) p.catch(() => {});
-      } catch (e) {}
-    };
-
-    function controls() {
-      $('go').onclick = () => {
-        A.init();
-        A.ok();
-        buildWorld(TH[sel]);
-        joinRoom();
-        $('start').classList.add('hidden');
-        active = true;
-        lock();
-      };
-
-      $('cv').addEventListener('click', () => {
-        if (active && !modal && !locked && !done) lock();
-      });
-
-      document.addEventListener('pointerlockchange', () => {
-        locked = document.pointerLockElement === document.body;
-      });
-
-      addEventListener('mousedown', () => dragging = true);
-      addEventListener('mouseup', () => dragging = false);
-
-      addEventListener('mousemove', e => {
-        if (!active || modal || done || (jailed && 0) || !(locked || dragging)) return;
-        yaw.rotation.y -= (e.movementX || 0) * .0022;
-        pitch.rotation.x = Math.max(-1.2, Math.min(1.2, pitch.rotation.x - (e.movementY || 0) * .0022));
-      });
-
-      addEventListener('keydown', e => {
-        K[e.code] = true;
-        if (!active || done) return;
-
-        if (e.code === 'KeyE' && !modal && current) {
-          A.b(600, .1);
-          if (current.userData.peer) {
-            ev({ t: 'free', p: current.userData.peer });
-          } else {
-            openNode(current.userData.nodeId);
-          }
-        }
-
-        if (e.code === 'KeyQ' && !modal && !jailed) takedown();
-
-        if (e.code === 'KeyF') flash.visible = !flash.visible;
-        if (e.code === 'Escape' && modal) closeModal();
-      });
-
-      addEventListener('keyup', e => K[e.code] = false);
-      $('cl').onclick = () => closeModal();
-    }
-
-    function takedown() {
-      const p = yaw.position;
-      const fx = -Math.sin(yaw.rotation.y);
-      const fz = -Math.cos(yaw.rotation.y);
-      let b = null, bd = 1.9;
-
-      npcs.forEach(h => {
-        if (h.dead || h.dormant) return;
-        const dx = h.g.position.x - p.x;
-        const dz = h.g.position.z - p.z;
-        const d = Math.hypot(dx, dz);
-        if (d < bd && (dx * fx + dz * fz) / d > .3) {
-          bd = d;
-          b = h;
-        }
-      });
-
-      if (!b) return;
-      A.hit();
-      ev({ t: 'kill', i: b.i });
-      ev({ t: 'heat', h: Math.min(3, heat + 1) });
-      ban('TAKEDOWN! Stay out of sight before it is found.');
-    }
-
-    function openNode(id) {
-      const n = N[id];
-      modal = true;
-      Object.keys(K).forEach(k => K[k] = false);
-      if (document.pointerLockElement) document.exitPointerLock();
-
-      $('tt').textContent = n.title;
-      $('tb').innerHTML = n.html();
-
-      const a = $('ta');
-      a.innerHTML = '';
-
-      n.acts.forEach(([t, c, f]) => {
-        const b = document.createElement('button');
-        b.className = BTN(c);
-        b.textContent = t;
-        b.onclick = f;
-        a.appendChild(b);
-      });
-
-      $('ov').classList.remove('hidden');
-    }
-
-    function closeModal() {
-      $('ov').classList.add('hidden');
-      modal = false;
-      lock();
-    }
-
-    const v3 = new THREE.Vector3();
-
-    function check() {
-      const p = yaw.position;
-      const fx = -Math.sin(yaw.rotation.y);
-      const fz = -Math.cos(yaw.rotation.y);
-
-      let best = null, bd = 4, lbl = '';
-
-      const L = inter.slice();
-      Object.values(av).forEach(a => {
-        if (a.g.userData.jailed) L.push(a.g);
-      });
-
-      L.forEach(o => {
-        const id = o.userData.nodeId;
-        if ((id === 'core_mind' && vaultOpen < .95) || (id === 'intruder' && phase < 2)) return;
-
-        o.getWorldPosition(v3);
-        const dx = v3.x - p.x;
-        const dz = v3.z - p.z;
-        const d = Math.hypot(dx, dz);
-
-        if (d < bd && (d < 1.3 || (dx * fx + dz * fz) / d > .35)) {
-          bd = d;
-          best = o;
-          lbl = id ? 'Inspect ' + N[id].name : 'Free your friend';
-        }
-      });
-
-      current = best;
-      $('prompt').classList.toggle('hidden', !best);
-      if (best) $('ptxt').textContent = lbl;
-    }
-
-    /* ---------- MAIN LOOP ---------- */
-    let tNet = 0, tSync = 0;
-    function update(dt, t) {
-      if (!world) return;
-
-      let sp = 0;
-      const play = active && !modal && !done;
-
-      if (play && !jailed) {
-        const f = (K.KeyW || K.ArrowUp ? 1 : 0) - (K.KeyS || K.ArrowDown ? 1 : 0);
-        const s = (K.KeyD || K.ArrowRight ? 1 : 0) - (K.KeyA || K.ArrowLeft ? 1 : 0);
-        const run = K.ShiftLeft || K.ShiftRight;
-        const max = run ? 5.2 : 3.2;
-        const l = Math.hypot(f, s) || 1;
-        const k = 1 - Math.exp(-10 * dt);
-
-        vel.x += (s / l * max - vel.x) * k;
-        vel.z += (f / l * max - vel.z) * k;
-
-        const sn = Math.sin(yaw.rotation.y);
-        const cs = Math.cos(yaw.rotation.y);
-        const p = yaw.position;
-
-        p.x += (cs * vel.x - sn * vel.z) * dt;
-        p.z += (-sn * vel.x - cs * vel.z) * dt;
-        p.x = Math.max(-26.6, Math.min(26.6, p.x));
-        p.z = Math.min(26.6, Math.max(vaultOpen > .95 ? V - 2.3 : V + .4, p.z));
-        if (p.z < V + .4 && Math.abs(p.x - vx) > 2.5) p.z = V + .4;
-
-        walls.forEach(w => {
-          const cx = Math.max(w.x1, Math.min(p.x, w.x2));
-          const cz = Math.max(w.z1, Math.min(p.z, w.z2));
-          const dx = p.x - cx;
-          const dz = p.z - cz;
-          const d = Math.hypot(dx, dz);
-
-          if (d < .4 && d > 0) {
-            p.x = cx + dx / d * .4;
-            p.z = cz + dz / d * .4;
-          }
-        });
-
-        obst.forEach(o => {
-          if (o.h && (o.h.dead || o.h.dormant)) return;
-          const ox = p.x - o.p.x;
-          const oz = p.z - o.p.z;
-          const d = Math.hypot(ox, oz);
-          const m = o.r + .35;
-
-          if (d < m && d > 0) {
-            p.x = o.p.x + ox / d * m;
-            p.z = o.p.z + oz / d * m;
-          }
-        });
-
-        sp = Math.hypot(vel.x, vel.z);
-
-        const pb = Math.floor(bob / Math.PI);
-        bob += dt * sp * 1.7;
-        if (Math.floor(bob / Math.PI) !== pb && sp > .8) A.step();
-
-        const am = Math.min(1, sp / 3.2);
-        camera.position.y = Math.cos(bob * 2) * .03 * am;
-        camera.position.x = Math.sin(bob) * .025 * am;
-        camera.rotation.z += (-s * .025 - camera.rotation.z) * Math.min(1, dt * 8);
-
-        const tf = 75 + (run && sp > 3.5 ? 7 : 0);
-        if (Math.abs(camera.fov - tf) > .05) {
-          camera.fov += (tf - camera.fov) * Math.min(1, dt * 6);
-          camera.updateProjectionMatrix();
-        }
-
-        chips.forEach((c, i) => {
-          if (!c.got && Math.hypot(c.m.position.x - p.x, c.m.position.z - p.z) < 1.5) ev({ t: 'chip', i });
-        });
-
-        if (esc && Math.hypot(spawn[0] - p.x, spawn[1] - p.z) < 2.5) ev({ t: 'win' });
-
-        check();
-      } else {
-        vel.set(0, 0, 0);
-        if (!modal) $('prompt').classList.add('hidden');
-      }
-
-      if (jailed) {
-        jt += dt;
-        const left = Math.max(0, 45 - jt);
-        $('jt').textContent = `A friend can free you (E). Auto-release in ${Math.ceil(left)}s`;
-        if (left <= 0) release();
-      }
-
-      if (play) gt += dt;
-      if (esc) {
-        esc -= dt;
-        HUD();
-        if (esc <= 0) end(false);
-      }
-
-      if (isHost) {
-        if (play && gt > 6 && !alarmed) {
-          alarmed = true;
-          A.alarm();
-          ban('ALARM: INTRUDER AT THE VAULT KEYPAD - GUARD RESPONDING');
-          setObj('Follow the guard to the vault (north)');
-        }
-
-        npcs.forEach(h => npcAI(h, dt, t));
-
-        npcs.forEach(h => {
-          if (h.dead && !h.rep) {
-            const hp = h.g.position;
-            if (npcs.some(o => !o.dead && !o.dormant && Math.hypot(o.g.position.x - hp.x, o.g.position.z - hp.z) < 9 && los(o.g.position.x, o.g.position.z, hp.x, hp.z))) {
-              h.rep = 1;
-              ev({ t: 'rep', x: hp.x, z: hp.z });
-            }
-          }
-        });
-
-        tNet += dt;
-        if (room && tNet > .1) {
-          tNet = 0;
-          safeRoomEmit('npc', npcs.map(h => [
-            +h.g.position.x.toFixed(2),
-            +h.g.position.z.toFixed(2),
-            +h.g.rotation.y.toFixed(2),
-            +h.sp.toFixed(2),
-            h.dead ? 1 : 0,
-            h.dormant ? 0 : 1
-          ]));
-        }
-
-        tSync += dt;
-        if (room && tSync > 3) {
-          tSync = 0;
-          safeRoomEmit('ev', {
-            t: 'sync',
-            c: chips.map((c, i) => c.got ? i : -1).filter(i => i >= 0),
-            k: S.key,
-            v: vaultUnlocked,
-            ph: phase,
-            h: heat,
-            e: esc > 0
-          });
-        }
-      } else {
-        npcs.forEach(h => {
-          if (h.nx !== undefined && !h.dead && !h.dormant) {
-            const p = h.g.position;
-            p.x += (h.nx - p.x) * Math.min(1, dt * 8);
-            p.z += (h.nz - p.z) * Math.min(1, dt * 8);
-            let r = h.nr - h.g.rotation.y;
-            r = Math.atan2(Math.sin(r), Math.cos(r));
-            h.g.rotation.y += r * Math.min(1, dt * 8);
-            pose(h, dt, t);
-          }
-        });
-      }
-
-      npcs.forEach(h => {
-        if (h.dead) {
-          h.k = Math.min(1, h.k + dt * 3);
-          h.g.rotation.x = -Math.PI / 2 * h.k;
-          h.g.position.y = .2 * h.k;
-        }
-
-        if (h.gun && !h.dead) h.gun.visible = h.st >= 2 || (h === runner && (alarmed || phase >= 2));
-      });
-
-      if (runner.st === 3 && !runner.dead) {
-        runner.aR.rotation.x = -1.45;
-        runner.eR.rotation.x = -.15;
-        runner.aL.rotation.x = -1.2;
-        runner.eL.rotation.x = -.5;
-        runner.chest.rotation.x = .05;
-      }
-
-      intr.sp = 0;
-      pose(intr, dt, t);
-
-      if (phase < 2) {
-        intr.aR.rotation.x = -1.45 + Math.sin(t * 10) * .06;
-        intr.eR.rotation.x = -.5;
-        intr.aL.rotation.x = -.2;
-        intr.chest.rotation.x = .1;
-        intr.head.rotation.y = Math.sin(t * 1.3) * .7;
-      } else {
-        intr.aL.rotation.x = intr.aR.rotation.x = -2.8;
-        intr.eL.rotation.x = intr.eR.rotation.x = -.2;
-        intr.aL.rotation.z = -.35;
-        intr.aR.rotation.z = .35;
-        turn(intr, vx, V + 4, 3, dt);
-        look(intr, dt, 10);
-      }
-
-      avatars(dt, t);
-
-      if (room && performance.now() - (update.lastPresence || 0) > 90) {
-        update.lastPresence = performance.now();
-        room.presence({
-          x: +yaw.position.x.toFixed(2),
-          z: +yaw.position.z.toFixed(2),
-          r: +yaw.rotation.y.toFixed(2),
-          s: vel.length() > 3.6 ? 1 : 0
-        }).catch(() => {});
-      }
-
-      if (vaultTarget && vaultOpen < 1) {
-        vaultOpen = Math.min(1, vaultOpen + dt / 2.6);
-        const e = vaultOpen * vaultOpen * (3 - 2 * vaultOpen);
-        vaultDoor.position.y = e * 3.7;
-        alcoveLight.intensity = e * 1.8;
-        emblem.material.color.set(0x10b981);
-        coreObj.visible = vaultOpen > .3;
-      } else if (!vaultTarget) {
-        emblem.rotation.z += dt * .6;
-      }
-
-      coreObj.rotation.x += dt * .6;
-      coreObj.rotation.y += dt * .9;
-      coreObj.position.y = 1.4 + Math.sin(t * 2) * .06;
-
-      exitM.visible = esc > 0;
-      chips.forEach(c => {
-        c.m.rotation.y += dt * 1.5;
-        c.m.position.y = 1.1 + Math.sin(t * 2 + c.m.position.x) * .1;
-      });
-
-      vance.g.visible = vaultOpen > .15;
-      vance.g.scale.setScalar(Math.min(1, vaultOpen * 2));
-      vance.g.position.y = .08 + Math.sin(t * 1.5) * .04;
-      vance.sp = 0;
-      pose(vance, dt, t);
-      look(vance, dt, 14);
-      vance.aR.rotation.x = -.9 + Math.sin(t * 1.3) * .2;
-      vance.eR.rotation.x = -.8 + Math.sin(t * 2.1) * .2;
-      vance.chest.rotation.y = Math.sin(t * .6) * .12;
-
-      const gl = Math.random() < .015 ? -.3 : 0;
-      vance.mats.forEach(m => m.opacity = .7 + .1 * Math.sin(t * 9) + gl);
-
-      rl.forEach((l, i) => {
-        let k = 1;
-        if (TC.fl && Math.sin(t * 3 + i * 7) > .96 - TC.fl * .02 && Math.random() < .5) k = .15;
-        if (TC.pulse || esc) k = .55 + .45 * Math.sin(t * 3 + i);
-        l.intensity = l.userData.b * k;
-      });
-    }
-
-    function loop() {
-      requestAnimationFrame(loop);
-      const dt = Math.min(clock.getDelta(), .05);
-      update(dt, clock.elapsedTime);
-      renderer.render(scene, camera);
-    }
-
-    init();
-  </script>
-</body></html>
+    chips.forEach((c,i)=>{if(!c.found){c.mesh.rotation.y+=dt*1.5;c.mesh.position.y=1.2+Math.sin(time*2+i)*.12}});
+    if(core.visible){core.rotation.y+=dt;core.position.y=1.5+Math.sin(time*2)*.12}
+    if(exitMark.visible)exitMark.material.opacity=.55+.35*Math.sin(time*5);
+    if(player)updateCamera(dt);
+    renderer.render(scene,camera);
+  }
+
+  function finish(win){
+    if(finished)return;finished=true;started=false;
+    $("mobile").style.display="none";
+    showDialog(win?t().win:t().lose,win?t().winText:t().loseText,t().again,()=>location.reload());
+    $("dialogClose").style.display="none";
+  }
+
+  function startGame(){
+    if(playMode==="online"){alert(t().onlineUnavailable);return}
+    if(!window.THREE){alert("Three.js failed to load. Check your internet connection.");return}
+    try{buildWorld()}catch(e){console.error(e);alert("The game could not start. Reload the page.");return}
+    started=true;$("start").style.display="none";$("hud").style.display="flex";$("mobile").style.display="block";updateHud();
+  }
+
+  $("startButton").onclick=startGame;
+  $("dialogClose").onclick=()=>$("dialog").style.display="none";
+  $("useButton").onclick=interact;
+  $("lightButton").onclick=()=>{if(flash)flash.visible=!flash.visible};
+  $("sprintButton").addEventListener("pointerdown",e=>{e.preventDefault();sprintTouch=true});
+  ["pointerup","pointercancel","pointerleave"].forEach(type=>$("sprintButton").addEventListener(type,()=>sprintTouch=false));
+
+  addEventListener("keydown",e=>{
+    keys[e.code]=true;
+    if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","Space"].includes(e.code))e.preventDefault();
+    if(e.code==="KeyE"||e.code==="Enter")interact();
+    if(e.code==="KeyF"&&flash)flash.visible=!flash.visible;
+  });
+  addEventListener("keyup",e=>keys[e.code]=false);
+  addEventListener("blur",()=>{keys={};sprintTouch=false});
+
+  const stick=$("stick"),knob=$("stickKnob");
+  stick.addEventListener("pointerdown",e=>{
+    e.preventDefault();stick.setPointerCapture(e.pointerId);joystick.id=e.pointerId;
+    const r=stick.getBoundingClientRect();joystick.cx=r.left+r.width/2;joystick.cy=r.top+r.height/2;updateStick(e);
+  });
+  stick.addEventListener("pointermove",e=>{if(e.pointerId===joystick.id)updateStick(e)});
+  function updateStick(e){
+    const dx=e.clientX-joystick.cx,dy=e.clientY-joystick.cy,max=42,len=Math.hypot(dx,dy),scale=len>max?max/len:1;
+    joystick.x=dx*scale/max;joystick.y=-dy*scale/max;knob.style.transform=`translate(${dx*scale}px,${dy*scale}px)`;
+  }
+  function stopStick(e){
+    if(e.pointerId!==joystick.id)return;
+    joystick.id=null;joystick.x=joystick.y=0;knob.style.transform="";
+  }
+  stick.addEventListener("pointerup",stopStick);stick.addEventListener("pointercancel",stopStick);
+
+  let mouseLook=false,lastX=0,lastY=0;
+  document.addEventListener("pointerdown",e=>{
+    if(!started||e.target.closest("button")||e.target.closest("#stick"))return;
+    if(e.pointerType==="touch"&&e.clientX>innerWidth*.4){lookPointer=e.pointerId;lastX=e.clientX;lastY=e.clientY}
+  });
+  document.addEventListener("pointermove",e=>{
+    if(e.pointerId!==lookPointer)return;
+    camYaw-=(e.clientX-lastX)*.008;camPitch=clamp(camPitch-(e.clientY-lastY)*.004,-.05,.8);lastX=e.clientX;lastY=e.clientY;
+  });
+  document.addEventListener("pointerup",e=>{if(e.pointerId===lookPointer)lookPointer=null});
+  document.addEventListener("mousedown",e=>{if(started&&!e.target.closest("button")){mouseLook=true;lastX=e.clientX;lastY=e.clientY}});
+  document.addEventListener("mouseup",()=>mouseLook=false);
+  document.addEventListener("mousemove",e=>{if(mouseLook&&started){camYaw-=(e.clientX-lastX)*.004;camPitch=clamp(camPitch-(e.clientY-lastY)*.002,-.05,.8);lastX=e.clientX;lastY=e.clientY}});
+
+  addEventListener("resize",()=>{
+    if(!renderer||!camera)return;
+    camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);
+    renderer.setPixelRatio(Math.min(devicePixelRatio||1,innerWidth<700?1.25:1.6));renderer.shadowMap.enabled=innerWidth>700;
+  });
+
+  renderMenu();
+  try{
+    scene=new THREE.Scene();camera=new THREE.PerspectiveCamera(62,innerWidth/innerHeight,.1,100);
+    renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:"high-performance"});
+    renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.3));
+    renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;
+    $("game").appendChild(renderer.domElement);clock=new THREE.Clock();
+    (function loop(){requestAnimationFrame(loop);if(renderer)update(Math.min(clock.getDelta(),.05),clock.elapsedTime)})();
+  }catch(e){console.error(e);$("startNote").textContent="3D graphics could not start. Try a browser with WebGL enabled."}
+})();
+</script>
+</body>
+</html>
